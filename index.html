@@ -27,6 +27,7 @@
   .warn.show{display:block}
   header{padding:18px 16px 14px;border-bottom:1px solid var(--line)}
   .kicker{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--ember);font-weight:700}
+  .cloudstat{font-size:10px;letter-spacing:.1em;color:var(--tallgrass);font-weight:700}
   h1{margin:2px 0 0;font-size:26px;letter-spacing:.06em;text-transform:uppercase;font-weight:800}
   .owner{margin-top:12px;display:flex;align-items:center;gap:8px}
   .owner label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ash);white-space:nowrap}
@@ -155,7 +156,7 @@
 <body>
 <div class="warn" id="warn">Saving is unavailable here (likely opened as a local file). For reliable saving on a phone, host this file, e.g. on your GitHub Pages, and open it there.</div>
 <header>
-  <div class="kicker">RealWorld Hybrid · Technical Rescue</div>
+  <div class="kicker">RealWorld Hybrid · Technical Rescue <span id="cloudStat" class="cloudstat"></span></div>
   <h1>Rescue Build</h1>
   <div class="owner"><label>This copy:</label><input id="owner" placeholder="your name" autocomplete="off"></div>
 </header>
@@ -375,7 +376,7 @@ const DEFAULTS={
 /* ---------- state ---------- */
 let state,storageOK=true;
 function clone(o){return JSON.parse(JSON.stringify(o))}
-function fresh(){return{schema:SCHEMA,owner:"",location:"gym",activePlan:"4day",activeTab:"plan",activeDay:{"4day":0,"3day":0},plans:clone(DEFAULTS),log:[],condLog:[],draft:null}}
+function fresh(){return{schema:SCHEMA,owner:"",location:"gym",activePlan:"4day",activeTab:"plan",activeDay:{"4day":0,"3day":0},plans:clone(DEFAULTS),log:[],condLog:[],draft:null,cloud:{url:"",key:"",code:"",enabled:false,lastSync:0}}}
 function valid(s){return s&&s.plans&&s.plans.gym&&s.plans.home&&s.plans.gym["4day"]&&s.plans.home["4day"]}
 function load(){
   try{
@@ -406,12 +407,58 @@ function load(){
   }catch(e){storageOK=false;state=fresh();}
   if(!state.condLog)state.condLog=[];
   if(!state.draft)state.draft=null;
-  save(); // write to the stable key now so recovered logs stick even if the app closes
+  if(!state.cloud)state.cloud={url:"",key:"",code:"",enabled:false,lastSync:0};
+  persist(); // write to the stable key now so recovered logs stick even if the app closes
+  if(cloudOn())cloudSync();
   if(!storageOK)document.getElementById("warn").classList.add("show");
 }
 let saveT;
-function save(){try{state.schema=SCHEMA;localStorage.setItem(KEY,JSON.stringify(state))}catch(e){storageOK=false;var w=document.getElementById("warn");if(w)w.classList.add("show")}}
+function persist(){try{state.schema=SCHEMA;localStorage.setItem(KEY,JSON.stringify(state))}catch(e){storageOK=false;var w=document.getElementById("warn");if(w)w.classList.add("show")}}
+function save(){persist();scheduleCloudPush();}
 function saveSoon(){clearTimeout(saveT);saveT=setTimeout(save,300)}
+
+/* ---------- cloud sync (Supabase REST; optional, off by default) ---------- */
+let cloudStatus="off",pushT=null,cloudBusy=false;
+function cloudOn(){const c=state&&state.cloud;return !!(c&&c.enabled&&c.url&&c.key&&c.code)}
+function setCloudStatus(s){cloudStatus=s;var h=document.getElementById("cloudStat");if(h)h.textContent=s?("☁ "+s):"";var g=document.getElementById("cloudStatG");if(g)g.textContent=s||"off";}
+function cloudBase(){return state.cloud.url.replace(/\/+$/,"")+"/rest/v1/logs"}
+function cloudHeaders(){const c=state.cloud;const h={apikey:c.key,"Content-Type":"application/json"};if(/^ey/.test(c.key))h.Authorization="Bearer "+c.key;return h;}
+function scheduleCloudPush(){if(!cloudOn())return;clearTimeout(pushT);pushT=setTimeout(cloudPush,1500)}
+function cloudPush(){
+  if(!cloudOn())return;setCloudStatus("saving…");
+  const body={code:state.cloud.code,data:{log:state.log,condLog:state.condLog,owner:state.owner},updated_at:new Date().toISOString()};
+  fetch(cloudBase()+"?on_conflict=code",{method:"POST",headers:Object.assign({Prefer:"resolution=merge-duplicates,return=minimal"},cloudHeaders()),body:JSON.stringify(body)})
+    .then(r=>{if(!r.ok)throw new Error(r.status);state.cloud.lastSync=Date.now();persist();setCloudStatus("synced");})
+    .catch(()=>setCloudStatus("offline — will retry"));
+}
+function cloudPull(){
+  return fetch(cloudBase()+"?select=data,updated_at&code=eq."+encodeURIComponent(state.cloud.code),{headers:cloudHeaders()})
+    .then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}).then(rows=>(rows&&rows[0])||null);
+}
+function cloudSync(cb){
+  if(!cloudOn()){if(cb)cb();return;}
+  if(cloudBusy){if(cb)cb();return;}
+  cloudBusy=true;setCloudStatus("syncing…");
+  cloudPull().then(remote=>{
+    if(remote&&remote.data&&(Date.parse(remote.updated_at)||0)>(state.cloud.lastSync||0)){
+      if(Array.isArray(remote.data.log))state.log=remote.data.log;
+      if(Array.isArray(remote.data.condLog))state.condLog=remote.data.condLog;
+      if(remote.data.owner&&!state.owner)state.owner=remote.data.owner;
+      state.cloud.lastSync=Date.parse(remote.updated_at)||Date.now();persist();
+      cloudBusy=false;setCloudStatus("synced");render();if(cb)cb(true);return;
+    }
+    cloudBusy=false;cloudPush();if(cb)cb(false);
+  }).catch(()=>{cloudBusy=false;setCloudStatus("offline");if(cb)cb(false);});
+}
+function saveCloudConfig(){
+  const url=(document.getElementById("cl-url").value||"").trim();
+  const key=(document.getElementById("cl-key").value||"").trim();
+  const code=(document.getElementById("cl-code").value||"").trim();
+  if(!url||!key||!code){toast("Fill in URL, anon key, and a sync code.");return;}
+  state.cloud={url,key,code,enabled:true,lastSync:0};persist();toast("Cloud sync on — syncing…");cloudSync();render();
+}
+function cloudToggle(){if(!state.cloud)return;state.cloud.enabled=!state.cloud.enabled;persist();if(state.cloud.enabled){cloudSync();}else{setCloudStatus("off");}render();}
+function cloudSyncNow(){if(!cloudOn()){toast("Set up cloud sync first.");return;}cloudSync(()=>toast("Sync complete."));}
 
 /* ---------- helpers ---------- */
 function CUR(){return state.plans[state.location][state.activePlan]}
@@ -798,10 +845,23 @@ function recoverPanelHTML(){
   h+='</div>';return h;
 }
 
+function cloudPanelHTML(){
+  const c=state.cloud||{},on=cloudOn();
+  return `<div style="background:var(--panel);border:1px solid ${on?'var(--tallgrass)':'var(--line)'};border-radius:10px;padding:12px 14px;margin-bottom:12px">
+    <div class="seclabel" style="margin-bottom:6px">Cloud sync — ${on?'<span style="color:var(--tallgrass)">on</span>':'off'}</div>
+    <p style="font-family:var(--mono);font-size:11px;color:var(--ash);line-height:1.6;margin:0 0 10px">Keeps your log in the cloud so it survives any phone, even a full wipe. Set up once per person. Your sync code is a password — use the same code on every device to reach the same log; your partner uses her own.</p>
+    <div class="fld"><label>Supabase URL</label><input type="text" id="cl-url" placeholder="https://xxxx.supabase.co" value="${esc(c.url||'')}"></div>
+    <div class="fld"><label>Anon public key</label><input type="text" id="cl-key" placeholder="eyJhbGci…" value="${esc(c.key||'')}"></div>
+    <div class="fld"><label>Your sync code (keep private)</label><input type="text" id="cl-code" placeholder="a long private phrase" value="${esc(c.code||'')}"></div>
+    <div class="btncol"><button class="solid" onclick="saveCloudConfig()">Save &amp; sync</button><button class="outline" onclick="cloudSyncNow()">Sync now</button>${c.enabled?'<button class="outline" onclick="cloudToggle()">Pause sync</button>':''}</div>
+    <p style="font-family:var(--mono);font-size:10px;color:var(--ash-dim);margin:8px 0 0">Status: <span id="cloudStatG">${esc(cloudStatus)}</span></p>
+  </div>`;
+}
 /* ---------- GUIDE ---------- */
 function renderInfo(app){
   app.innerHTML=`<div class="wrap info" style="padding-top:8px">
     ${recoverPanelHTML()}
+    ${cloudPanelHTML()}
     <h3>Start here</h3>
     <p class="lead">This is a strength + rescue-fitness plan for two people to run together. Pick your <b>Location</b> (Gym or Home) and <b>Split</b> (4-Day or 3-Day) at the top, then follow the tabs below.</p>
     <h3>The four tabs</h3>
