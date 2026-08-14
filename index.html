@@ -421,23 +421,26 @@ function saveSoon(){clearTimeout(saveT);saveT=setTimeout(save,300)}
 let cloudStatus="off",pushT=null,cloudBusy=false;
 function cloudOn(){const c=state&&state.cloud;return !!(c&&c.enabled&&c.url&&c.key&&c.code)}
 function setCloudStatus(s){cloudStatus=s;var h=document.getElementById("cloudStat");if(h)h.textContent=s?("☁ "+s):"";var g=document.getElementById("cloudStatG");if(g)g.textContent=s||"off";}
-function cloudBase(){return state.cloud.url.replace(/\/+$/,"")+"/rest/v1/logs"}
+function cloudBase(){let u=(state.cloud.url||"").trim().replace(/\/+$/,"").replace(/\/rest\/v1$/,"");return u+"/rest/v1/logs";}
 function cloudHeaders(){const c=state.cloud;const h={apikey:c.key,"Content-Type":"application/json"};if(/^ey/.test(c.key))h.Authorization="Bearer "+c.key;return h;}
-function scheduleCloudPush(){if(!cloudOn())return;clearTimeout(pushT);pushT=setTimeout(cloudPush,1500)}
-function cloudPush(){
-  if(!cloudOn())return;setCloudStatus("saving…");
+function cloudErr(status){if(status===401||status===403)return "error "+status+" — key/policy";if(status===404)return "error 404 — check URL";if(status===400)return "error 400 — table/SQL";return status?("error "+status):"offline — no internet";}
+function checkRes(r){if(!r.ok)return r.text().then(t=>{const e=new Error(t||"");e.status=r.status;throw e;});return r;}
+function scheduleCloudPush(){if(!cloudOn())return;clearTimeout(pushT);pushT=setTimeout(()=>cloudPush(),1500)}
+function cloudPush(cb){
+  if(!cloudOn()){if(cb)cb(false);return;}
+  setCloudStatus("saving…");
   const body={code:state.cloud.code,data:{log:state.log,condLog:state.condLog,owner:state.owner},updated_at:new Date().toISOString()};
   fetch(cloudBase()+"?on_conflict=code",{method:"POST",headers:Object.assign({Prefer:"resolution=merge-duplicates,return=minimal"},cloudHeaders()),body:JSON.stringify(body)})
-    .then(r=>{if(!r.ok)throw new Error(r.status);state.cloud.lastSync=Date.now();persist();setCloudStatus("synced");})
-    .catch(()=>setCloudStatus("offline — will retry"));
+    .then(checkRes).then(()=>{state.cloud.lastSync=Date.now();persist();setCloudStatus("synced");if(cb)cb(true);})
+    .catch(e=>{setCloudStatus(cloudErr(e&&e.status));if(cb)cb(false,e);});
 }
 function cloudPull(){
   return fetch(cloudBase()+"?select=data,updated_at&code=eq."+encodeURIComponent(state.cloud.code),{headers:cloudHeaders()})
-    .then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}).then(rows=>(rows&&rows[0])||null);
+    .then(checkRes).then(r=>r.json()).then(rows=>(rows&&rows[0])||null);
 }
 function cloudSync(cb){
-  if(!cloudOn()){if(cb)cb();return;}
-  if(cloudBusy){if(cb)cb();return;}
+  if(!cloudOn()){if(cb)cb(false);return;}
+  if(cloudBusy){if(cb)cb(false);return;}
   cloudBusy=true;setCloudStatus("syncing…");
   cloudPull().then(remote=>{
     if(remote&&remote.data&&(Date.parse(remote.updated_at)||0)>(state.cloud.lastSync||0)){
@@ -447,18 +450,18 @@ function cloudSync(cb){
       state.cloud.lastSync=Date.parse(remote.updated_at)||Date.now();persist();
       cloudBusy=false;setCloudStatus("synced");render();if(cb)cb(true);return;
     }
-    cloudBusy=false;cloudPush();if(cb)cb(false);
-  }).catch(()=>{cloudBusy=false;setCloudStatus("offline");if(cb)cb(false);});
+    cloudBusy=false;cloudPush(cb);
+  }).catch(e=>{cloudBusy=false;setCloudStatus(cloudErr(e&&e.status));if(cb)cb(false,e);});
 }
 function saveCloudConfig(){
   const url=(document.getElementById("cl-url").value||"").trim();
   const key=(document.getElementById("cl-key").value||"").trim();
   const code=(document.getElementById("cl-code").value||"").trim();
   if(!url||!key||!code){toast("Fill in URL, anon key, and a sync code.");return;}
-  state.cloud={url,key,code,enabled:true,lastSync:0};persist();toast("Cloud sync on — syncing…");cloudSync();render();
+  state.cloud={url,key,code,enabled:true,lastSync:0};cloudEditing=false;persist();toast("Cloud sync on — syncing…");cloudSync();render();
 }
 function cloudToggle(){if(!state.cloud)return;state.cloud.enabled=!state.cloud.enabled;persist();if(state.cloud.enabled){cloudSync();}else{setCloudStatus("off");}render();}
-function cloudSyncNow(){if(!cloudOn()){toast("Set up cloud sync first.");return;}cloudSync(()=>toast("Sync complete."));}
+function cloudSyncNow(){if(!cloudOn()){toast("Set up cloud sync first.");return;}cloudSync((ok,e)=>{toast(ok?"Sync complete.":("Sync failed: "+cloudErr(e&&e.status)));});}
 
 /* ---------- helpers ---------- */
 function CUR(){return state.plans[state.location][state.activePlan]}
@@ -845,22 +848,34 @@ function recoverPanelHTML(){
   h+='</div>';return h;
 }
 
+let cloudEditing=false;
+function cloudEdit(){cloudEditing=true;render();}
+function cloudCancelEdit(){cloudEditing=false;render();}
+function cloudDisconnect(){if(!state.cloud)return;state.cloud.enabled=false;cloudEditing=false;persist();setCloudStatus("off");render();toast("Cloud sync turned off.");}
 function cloudPanelHTML(){
   const c=state.cloud||{},on=cloudOn();
-  return `<div style="background:var(--panel);border:1px solid ${on?'var(--tallgrass)':'var(--line)'};border-radius:10px;padding:12px 14px;margin-bottom:12px">
-    <div class="seclabel" style="margin-bottom:6px">Cloud sync — ${on?'<span style="color:var(--tallgrass)">on</span>':'off'}</div>
-    <p style="font-family:var(--mono);font-size:11px;color:var(--ash);line-height:1.6;margin:0 0 10px">Keeps your log in the cloud so it survives any phone, even a full wipe. Set up once per person. Your sync code is a password — use the same code on every device to reach the same log; your partner uses her own.</p>
+  if(on&&!cloudEditing){
+    return `<div style="background:var(--panel);border:1px solid var(--tallgrass);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+        <div style="min-width:0"><div class="seclabel" style="margin:0">Cloud sync · <span style="color:var(--tallgrass)">on</span></div>
+        <p style="font-family:var(--mono);font-size:10px;color:var(--ash-dim);margin:5px 0 0">code ${esc((c.code||'').slice(0,3))}••• · <span id="cloudStatG">${esc(cloudStatus||'synced')}</span></p></div>
+        <button class="ghost" onclick="cloudSyncNow()">Sync now</button></div>
+      <div style="margin-top:10px"><button class="outline" style="width:100%" onclick="cloudEdit()">Edit connection</button></div>
+    </div>`;
+  }
+  return `<div style="background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+    <div class="seclabel" style="margin-bottom:6px">Cloud sync setup</div>
+    <p style="font-family:var(--mono);font-size:11px;color:var(--ash);line-height:1.6;margin:0 0 10px">Keeps your log safe across any phone, even a full wipe. Fill these once. Your sync code is a private password — same code on all your devices; your partner uses her own.</p>
     <div class="fld"><label>Supabase URL</label><input type="text" id="cl-url" placeholder="https://xxxx.supabase.co" value="${esc(c.url||'')}"></div>
-    <div class="fld"><label>Anon public key</label><input type="text" id="cl-key" placeholder="eyJhbGci…" value="${esc(c.key||'')}"></div>
-    <div class="fld"><label>Your sync code (keep private)</label><input type="text" id="cl-code" placeholder="a long private phrase" value="${esc(c.code||'')}"></div>
-    <div class="btncol"><button class="solid" onclick="saveCloudConfig()">Save &amp; sync</button><button class="outline" onclick="cloudSyncNow()">Sync now</button>${c.enabled?'<button class="outline" onclick="cloudToggle()">Pause sync</button>':''}</div>
+    <div class="fld"><label>Anon / publishable key</label><input type="text" id="cl-key" placeholder="paste key" value="${esc(c.key||'')}"></div>
+    <div class="fld"><label>Sync code (private)</label><input type="text" id="cl-code" placeholder="a long private phrase" value="${esc(c.code||'')}"></div>
+    <div class="btncol"><button class="solid" onclick="saveCloudConfig()">Connect &amp; sync</button>${on?'<button class="outline" onclick="cloudCancelEdit()">Cancel</button><button class="outline warnbtn" onclick="cloudDisconnect()">Turn off sync</button>':''}</div>
     <p style="font-family:var(--mono);font-size:10px;color:var(--ash-dim);margin:8px 0 0">Status: <span id="cloudStatG">${esc(cloudStatus)}</span></p>
   </div>`;
 }
 /* ---------- GUIDE ---------- */
 function renderInfo(app){
   app.innerHTML=`<div class="wrap info" style="padding-top:8px">
-    ${recoverPanelHTML()}
     ${cloudPanelHTML()}
     <h3>Start here</h3>
     <p class="lead">This is a strength + rescue-fitness plan for two people to run together. Pick your <b>Location</b> (Gym or Home) and <b>Split</b> (4-Day or 3-Day) at the top, then follow the tabs below.</p>
@@ -944,6 +959,9 @@ function resetAll(){askConfirm("Reset EVERYTHING on this device — plan edits, 
 
 /* ---------- boot ---------- */
 document.getElementById("owner").addEventListener("input",e=>{state.owner=e.target.value;saveSoon()});
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&cloudOn())cloudSync();});
+window.addEventListener("focus",function(){if(cloudOn())cloudSync();});
+setInterval(function(){if(cloudOn()&&!document.hidden)cloudSync();},180000);
 load();render();
 </script>
 </body>
