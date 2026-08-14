@@ -6,146 +6,113 @@
 <title>Rescue Build — Trainer</title>
 <style>
   :root{
-    --steel:#17191C; --panel:#20242A; --panel2:#272C33; --line:#353B43;
-    --bone:#EAE6DA; --ash:#9C988D; --ash-dim:#6E6B63;
-    --ember:#E68A2E; --ember-hot:#D8542A; --tallgrass:#94A65B; --tallgrass-dim:rgba(148,166,91,.14);
+    --steel:#17191C;--panel:#20242A;--panel2:#272C33;--line:#353B43;
+    --bone:#EAE6DA;--ash:#9C988D;--ash-dim:#6E6B63;
+    --ember:#E68A2E;--ember-hot:#D8542A;--tallgrass:#94A65B;--tallgrass-dim:rgba(148,166,91,.14);
     --display:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;background:var(--steel);color:var(--bone);font-family:var(--display);font-size:16px;line-height:1.45}
   body{padding:0 0 96px;max-width:760px;margin:0 auto}
-  a{color:var(--ember)}
   input,textarea,select,button{font-family:inherit;font-size:16px;color:inherit}
   ::placeholder{color:var(--ash-dim)}
-
   .warn{display:none;background:var(--ember-hot);color:#fff;padding:10px 16px;font-size:13px}
   .warn.show{display:block}
-
   header{padding:18px 16px 14px;border-bottom:1px solid var(--line)}
   .kicker{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--ember);font-weight:700}
   h1{margin:2px 0 0;font-size:26px;letter-spacing:.06em;text-transform:uppercase;font-weight:800}
   .owner{margin-top:12px;display:flex;align-items:center;gap:8px}
   .owner label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ash);white-space:nowrap}
-  .owner input{flex:1;background:transparent;border:none;border-bottom:1px dashed var(--line);color:var(--bone);
-    padding:4px 2px;font-family:var(--mono);font-size:14px}
+  .owner input{flex:1;background:transparent;border:none;border-bottom:1px dashed var(--line);color:var(--bone);padding:4px 2px;font-family:var(--mono);font-size:14px}
   .owner input:focus{outline:none;border-bottom-color:var(--ember)}
-
   .selrow{display:flex;align-items:center;gap:10px;margin:14px 16px 0}
   .sellabel{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--ash);width:58px;flex:none}
   .selector{flex:1;display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
-  .selector button{flex:1;background:transparent;border:none;padding:11px 0;font-size:12px;font-weight:700;
-    letter-spacing:.16em;text-transform:uppercase;color:var(--ash);cursor:pointer;transition:color .15s}
+  .selector button{flex:1;background:transparent;border:none;padding:11px 0;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ash);cursor:pointer}
   .selector button.on{color:var(--steel);background:var(--ember)}
   .selector button+button{border-left:1px solid var(--line)}
-
   .tabs{display:flex;margin:16px 16px 0;border-bottom:1px solid var(--line)}
-  .tabs button{background:none;border:none;padding:10px 2px;margin-right:22px;color:var(--ash);cursor:pointer;
-    font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;border-bottom:2px solid transparent}
+  .tabs button{background:none;border:none;padding:10px 2px;margin-right:20px;color:var(--ash);cursor:pointer;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;border-bottom:2px solid transparent}
   .tabs button.on{color:var(--bone);border-bottom-color:var(--ember)}
-
   .daybar{display:flex;flex-wrap:wrap;gap:8px;padding:14px 16px 0}
-  .daybar button{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px;
-    color:var(--ash);cursor:pointer;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+  .daybar button{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px;color:var(--ash);cursor:pointer;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
   .daybar button.on{color:var(--ember);border-color:var(--ember)}
-
   .wrap{padding:18px 16px 0}
   .daytitle{font-size:20px;letter-spacing:.05em;text-transform:uppercase;font-weight:800;margin:0}
   .daysub{color:var(--ash);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin:3px 0 0}
-
   details.warmup{margin:16px 0 4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  details.warmup>summary{list-style:none;cursor:pointer;padding:12px 14px;font-size:11px;letter-spacing:.2em;
-    text-transform:uppercase;color:var(--ember);font-weight:700;display:flex;justify-content:space-between}
+  details.warmup>summary{list-style:none;cursor:pointer;padding:12px 14px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ember);font-weight:700;display:flex;justify-content:space-between}
   details.warmup>summary::-webkit-details-marker{display:none}
   details.warmup .body{padding:0 14px 12px}
   details.warmup li{font-family:var(--mono);font-size:13px;color:var(--ash);margin:6px 0;line-height:1.5}
-
   .section{margin-top:20px}
-  .seclabel{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ember);font-weight:700;
-    display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .seclabel{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ember);font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:10px}
   .seclabel::after{content:"";flex:1;height:1px;background:var(--line)}
-
-  .row{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 12px 12px 14px;
-    margin-bottom:10px;border-left:3px solid var(--line)}
+  .row{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 12px 12px 14px;margin-bottom:10px;border-left:3px solid var(--line)}
   .row.anchor{border-left-color:var(--ember-hot)}
   .row .top{display:flex;align-items:flex-start;gap:10px}
   .idx{font-family:var(--mono);font-size:12px;color:var(--ash-dim);padding-top:3px;min-width:20px}
   .namewrap{flex:1;min-width:0}
   .name{width:100%;background:transparent;border:none;color:var(--bone);font-weight:700;font-size:15px;letter-spacing:.02em;padding:1px 0}
   .name:focus{outline:none}
-  .chip{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
-    border:1px solid var(--ember);color:var(--ember);border-radius:4px;padding:1px 5px;margin-left:7px;vertical-align:middle}
+  .chip{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--ember);color:var(--ember);border-radius:4px;padding:1px 5px;margin-left:7px;vertical-align:middle}
+  .chip.metric{border-color:var(--ash);color:var(--ash)}
   .del{background:none;border:none;color:var(--ash-dim);font-size:18px;line-height:1;cursor:pointer;padding:0 2px}
   .del:hover{color:var(--ember-hot)}
   .toggle{display:flex;gap:6px;margin:8px 0 0 30px;flex-wrap:wrap}
-  .toggle button{background:var(--panel2);border:1px solid var(--line);border-radius:7px;color:var(--ash);
-    padding:6px 11px;cursor:pointer;font-size:11px;letter-spacing:.05em;font-weight:700}
+  .toggle button{background:var(--panel2);border:1px solid var(--line);border-radius:7px;color:var(--ash);padding:6px 11px;cursor:pointer;font-size:11px;letter-spacing:.05em;font-weight:700}
   .toggle button.on{background:var(--tallgrass-dim);border-color:var(--tallgrass);color:var(--tallgrass)}
   .choicelabel{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--ash-dim);margin:8px 0 0 30px}
   .spec{display:flex;flex-wrap:wrap;gap:6px 10px;margin:8px 0 0 30px}
   .field{display:flex;align-items:baseline;gap:5px}
   .field span{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ash-dim)}
-  .field input{background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--bone);
-    font-family:var(--mono);font-size:13px;padding:4px 7px;min-width:0}
+  .field input{background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--bone);font-family:var(--mono);font-size:13px;padding:4px 7px;min-width:0}
   .field input:focus{outline:none;border-color:var(--ember)}
-  .f-sr input{width:98px}.f-rest input{width:88px}
-  .note{width:calc(100% - 30px);margin:8px 0 0 30px;background:transparent;border:none;border-top:1px dashed var(--line);
-    color:var(--ash);font-family:var(--mono);font-size:12px;font-style:italic;padding:7px 0 0;resize:none;line-height:1.4}
+  .f-sr input{width:104px}.f-rest input{width:88px}
+  .note{width:calc(100% - 30px);margin:8px 0 0 30px;background:transparent;border:none;border-top:1px dashed var(--line);color:var(--ash);font-family:var(--mono);font-size:12px;font-style:italic;padding:7px 0 0;resize:none;line-height:1.4}
   .note:focus{outline:none;color:var(--bone)}
-
-  .addbtn{width:100%;background:transparent;border:1px dashed var(--line);border-radius:10px;color:var(--ash);
-    padding:11px;cursor:pointer;font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+  .addbtn{width:100%;background:transparent;border:1px dashed var(--line);border-radius:10px;color:var(--ash);padding:11px;cursor:pointer;font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
   .addbtn:hover{border-color:var(--ember);color:var(--ember)}
   .rowtools{display:flex;justify-content:flex-end;margin-top:16px}
-  .ghost{background:none;border:1px solid var(--line);border-radius:8px;color:var(--ash);padding:9px 14px;cursor:pointer;
-    font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+  .ghost{background:none;border:1px solid var(--line);border-radius:8px;color:var(--ash);padding:9px 14px;cursor:pointer;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
   .ghost:hover{border-color:var(--ember-hot);color:var(--ember-hot)}
-
-  /* LOG */
   .logform{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
   .logform h3{margin:0 0 12px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ember)}
   .grid2{display:flex;gap:10px;flex-wrap:wrap}
   .fld{flex:1;min-width:110px;margin-bottom:10px}
   .fld.full{flex-basis:100%}
   .fld label{display:block;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--ash);margin-bottom:5px}
-  .fld input,.fld select,.fld textarea{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
-    color:var(--bone);padding:9px 10px;font-family:var(--mono);font-size:13px}
+  .fld input,.fld select,.fld textarea{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--bone);padding:9px 10px;font-family:var(--mono);font-size:13px}
   .fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--ember)}
   .fld textarea{resize:vertical;min-height:56px;line-height:1.5}
-  .solid{background:var(--ember);border:none;border-radius:8px;color:var(--steel);padding:12px;width:100%;cursor:pointer;
-    font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:13px;margin-top:2px}
+  .solid{background:var(--ember);border:none;border-radius:8px;color:var(--steel);padding:12px;width:100%;cursor:pointer;font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:13px}
   .solid:active{transform:translateY(1px)}
-  .btnrow{display:flex;gap:10px;margin-top:10px}
-  .btnrow .solid{margin-top:0}
-  .outline{background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--ash);padding:12px;cursor:pointer;
-    font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:12px;flex:none;min-width:120px}
+  .btncol{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .outline{background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--ash);padding:12px;cursor:pointer;font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:12px}
   .outline:hover{color:var(--bone);border-color:var(--ash)}
   .outline.warnbtn:hover{color:var(--ember-hot);border-color:var(--ember-hot)}
-
-  /* active session */
   .sesshead{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
   .sessdate{font-family:var(--mono);font-size:14px;color:var(--bone);font-weight:700;margin-right:4px}
+  .ssdate{font-family:var(--mono);font-size:14px;color:var(--bone);font-weight:700;background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:6px 8px}
+  .ssdate:focus{outline:none;border-color:var(--ember)}
   .exlog{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
   .exname{font-weight:700;font-size:14px;letter-spacing:.02em;margin-bottom:2px}
   .exsub{font-family:var(--mono);font-size:10px;color:var(--ash-dim);letter-spacing:.06em;margin-bottom:8px}
-  .setrow{display:flex;align-items:center;gap:8px;margin:6px 0}
-  .setn{font-family:var(--mono);font-size:11px;color:var(--ash);width:44px;flex:none;letter-spacing:.08em}
-  .setrow input{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:7px;color:var(--bone);
-    font-family:var(--mono);font-size:14px;padding:8px 9px;text-align:center}
-  .setrow input:focus{outline:none;border-color:var(--ember)}
-  .setx{font-family:var(--mono);color:var(--ash-dim);flex:none}
-  .setdel{background:none;border:none;color:var(--ash-dim);font-size:16px;cursor:pointer;flex:none;padding:0 4px}
+  .setrow{display:flex;align-items:flex-end;gap:8px;margin:8px 0}
+  .setn{font-family:var(--mono);font-size:11px;color:var(--ash);width:42px;flex:none;letter-spacing:.06em;padding-bottom:9px}
+  .setf{flex:1;min-width:0}
+  .setf label{display:block;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--ash-dim);margin-bottom:3px}
+  .setf input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:7px;color:var(--bone);font-family:var(--mono);font-size:14px;padding:8px 9px}
+  .setf input:focus{outline:none;border-color:var(--ember)}
+  .setdel{background:none;border:none;color:var(--ash-dim);font-size:16px;cursor:pointer;flex:none;padding:0 4px 9px}
   .setdel:hover{color:var(--ember-hot)}
-  .setadd{background:none;border:1px dashed var(--line);border-radius:7px;color:var(--ash);padding:7px;cursor:pointer;
-    font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;width:100%;margin-top:4px}
+  .setadd{background:none;border:1px dashed var(--line);border-radius:7px;color:var(--ash);padding:7px;cursor:pointer;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;width:100%;margin-top:4px}
   .setadd:hover{border-color:var(--ember);color:var(--ember)}
-
-  .logitem{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--tallgrass);border-radius:10px;
-    padding:12px 14px;margin-top:10px;position:relative}
+  .logitem{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--tallgrass);border-radius:10px;padding:12px 14px;margin-top:10px;position:relative}
   .logitem .meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-right:20px}
   .logdate{font-family:var(--mono);font-size:13px;color:var(--bone);font-weight:700}
-  .badge{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;background:var(--tallgrass-dim);
-    color:var(--tallgrass);border-radius:4px;padding:2px 6px}
+  .badge{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;background:var(--tallgrass-dim);color:var(--tallgrass);border-radius:4px;padding:2px 6px}
   .badge.var{background:rgba(230,138,46,.14);color:var(--ember)}
   .badge.loc{background:rgba(154,152,141,.16);color:var(--ash)}
   .logsets{margin:8px 0 0}
@@ -154,19 +121,19 @@
   .logitem p{margin:8px 0 0;font-family:var(--mono);font-size:12px;color:var(--ash);white-space:pre-wrap;line-height:1.5}
   .logitem .del{position:absolute;right:12px;top:10px}
   .empty{color:var(--ash-dim);font-family:var(--mono);font-size:13px;text-align:center;padding:34px 10px;line-height:1.6}
-
   .info h3{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ember);margin:22px 0 8px}
+  .info h4{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone);margin:16px 0 6px}
   .info p,.info li{font-family:var(--mono);font-size:13px;color:var(--ash);line-height:1.6}
   .info ul{padding-left:18px;margin:6px 0}
   .info .lead{color:var(--bone)}
-
-  footer{position:fixed;bottom:0;left:0;right:0;background:rgba(23,25,28,.94);backdrop-filter:blur(8px);
-    border-top:1px solid var(--line);padding:12px 16px;display:flex;gap:8px;justify-content:center;max-width:760px;margin:0 auto}
-  footer button{flex:1;max-width:180px;background:var(--panel);border:1px solid var(--line);border-radius:9px;color:var(--ash);
-    padding:11px 8px;cursor:pointer;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+  .ptable{width:100%;table-layout:fixed;border-collapse:collapse;margin:8px 0;font-family:var(--mono);font-size:11px}
+  .ptable td{border:1px solid var(--line);padding:5px 6px;color:var(--ash);word-break:break-word;overflow-wrap:anywhere;vertical-align:top;line-height:1.4}
+  .ptable td:first-child{color:var(--bone)}
+  .runtable td:first-child{width:26px;text-align:center}
+  footer{position:fixed;bottom:0;left:0;right:0;background:rgba(23,25,28,.94);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:12px 16px;display:flex;gap:8px;justify-content:center;max-width:760px;margin:0 auto}
+  footer button{flex:1;max-width:180px;background:var(--panel);border:1px solid var(--line);border-radius:9px;color:var(--ash);padding:11px 8px;cursor:pointer;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
   footer button:hover{color:var(--bone);border-color:var(--ash)}
   footer button.danger:hover{color:var(--ember-hot);border-color:var(--ember-hot)}
-  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
   .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;align-items:center;justify-content:center;padding:24px}
   .modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;max-width:340px;width:100%}
   .modal p{margin:0 0 16px;font-size:15px;line-height:1.5;color:var(--bone)}
@@ -174,107 +141,104 @@
   .mbtns button{flex:1;border-radius:9px;padding:12px;cursor:pointer;font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:12px}
   .mbtns .no{background:transparent;border:1px solid var(--line);color:var(--ash)}
   .mbtns .yes{background:var(--ember-hot);border:none;color:#fff}
-  .toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(12px);background:var(--panel2);border:1px solid var(--line);
-    color:var(--bone);padding:11px 16px;border-radius:10px;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:88%}
+  .toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(12px);background:var(--panel2);border:1px solid var(--line);color:var(--bone);padding:11px 16px;border-radius:10px;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:88%}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-<div class="warn" id="warn">Saving is unavailable in this browser (likely opened as a local file). For reliable saving on a phone, host this file, for example on your GitHub Pages, and open it there.</div>
-
+<div class="warn" id="warn">Saving is unavailable here (likely opened as a local file). For reliable saving on a phone, host this file, e.g. on your GitHub Pages, and open it there.</div>
 <header>
   <div class="kicker">RealWorld Hybrid · Technical Rescue</div>
   <h1>Rescue Build</h1>
   <div class="owner"><label>This copy:</label><input id="owner" placeholder="your name" autocomplete="off"></div>
 </header>
-
 <div class="selrow"><span class="sellabel">Location</span>
-  <div class="selector"><button id="loc-gym" onclick="setLoc('gym')">Gym</button><button id="loc-home" onclick="setLoc('home')">Home</button></div>
-</div>
+  <div class="selector"><button id="loc-gym" onclick="setLoc('gym')">Gym</button><button id="loc-home" onclick="setLoc('home')">Home</button></div></div>
 <div class="selrow"><span class="sellabel">Split</span>
-  <div class="selector"><button id="sel4" onclick="setPlan('4day')">4-Day</button><button id="sel3" onclick="setPlan('3day')">3-Day</button></div>
-</div>
-
+  <div class="selector"><button id="sel4" onclick="setPlan('4day')">4-Day</button><button id="sel3" onclick="setPlan('3day')">3-Day</button></div></div>
 <div class="tabs">
   <button id="tab-plan" onclick="setTab('plan')" class="on">Plan</button>
   <button id="tab-log" onclick="setTab('log')">Log</button>
-  <button id="tab-info" onclick="setTab('info')">Reference</button>
+  <button id="tab-cond" onclick="setTab('cond')">Cond</button>
+  <button id="tab-info" onclick="setTab('info')">Guide</button>
 </div>
-
 <div id="app" class="wrap"></div>
-
 <footer>
   <button onclick="backup()">Back up</button>
   <button onclick="document.getElementById('restore').click()">Restore</button>
   <button class="danger" onclick="resetAll()">Reset all</button>
   <input type="file" id="restore" accept="application/json" style="display:none" onchange="restore(event)">
 </footer>
-
 <script>
 "use strict";
-const KEY="rescueBuild.v4";
+const KEY="rescueBuild";
+const SCHEMA=11;
+const LEGACY=["rescueBuild.v10","rescueBuild.v9","rescueBuild.v8","rescueBuild.v7","rescueBuild.v6","rescueBuild.v5"];
 
-/* ---------- builders ---------- */
-function anchor(name,spec,rest,note){return{name,spec,rest,note:note||"",tag:"ANCHOR",anchor:true}}
-function ex(name,spec,rest,note,tag){return{name,spec,rest,note:note||"",tag:tag||"",anchor:false}}
+/* ---------- builders (metric decides what the log asks for) ---------- */
+function anchor(name,spec,rest,note,metric){return{name,spec,rest,note:note||"",tag:"ANCHOR",anchor:true,metric:metric||"weight_reps"}}
+function ex(name,spec,rest,note,tag,metric){return{name,spec,rest,note:note||"",tag:tag||"",anchor:false,metric:metric||"weight_reps"}}
 function opt(name,spec){return{name,spec}}
-function pick(options,rest,note){return{choice:true,options,selected:0,rest,note:note||"",tag:"",anchor:false}}
+function pick(options,rest,note,metric){return{choice:true,options,selected:0,rest,note:note||"",tag:"",anchor:false,metric:metric||"weight_reps"}}
+const RP="reps",TM="time",WR="weight_reps",DT="distance_time";
 
-/* ---------- program data ---------- */
 const DEFAULTS={
  gym:{
   "4day":{label:"4-Day",days:[
-   {title:"Day 1 — Lower Strength + Rescue Capacity",sub:"Squat-dominant",
-    warmup:["Daily mobility (10 min)","Lower activation (5 min): banded glute bridge x15, lateral walk x10/side","Back squat ramp-up: empty → 50%x5 → 70%x3 → 85%x1-2"],
-    sections:[
-     {label:"Work",items:[
-      ex("Box jump / low-box step-down","3 × 3","60s","Step-downs unless groin cleared"),
-      anchor("Back squat","4 × 4-6","2.5-3 min","RIR 1-2"),
-      pick([opt("Bulgarian split squat","3 × 8-10/leg"),opt("Walking lunge","3 × 10/leg")],"90-120s",""),
-      ex("Nordic curl","3 × 6-8","—","3s lower, superset with kickback","SUPERSET"),
-      ex("Cable kickback","3 × 15/side","60s after pair","")
-     ]},
-     {label:"Finisher (8-10 min)",items:[ex("Weighted box step-ups","3 min on / 90s off × 1-2","—","CPAT stair climb")]}
-    ]},
-   {title:"Day 2 — Upper Push + KB End Block",sub:"Press + shoulder mobility",
-    warmup:["Daily mobility (10 min)","Upper activation (5 min): band pull-apart x15, KB halo x8/dir"],
-    sections:[
-     {label:"Work",items:[
-      anchor("Bench press","4 × 4-6","2.5-3 min",""),
-      ex("Standing DB/KB overhead press","4 × 6-8","90-120s","Ladder raise / pike pole"),
-      ex("Weighted dip / incline DB press","3 × 8-12","60-90s",""),
-      ex("Slamball overhead slam","4 × 8","60-90s","Forcible entry")
-     ]},
-     {label:"KB End Block (10-12 min) · shoulder emphasis",items:[
-      ex("Turkish get-up","3/side","slow",""),ex("KB windmill","3 × 5/side","—",""),ex("KB halo","2 × 8/dir","—","")
-     ]}
-    ]},
-   {title:"Day 3 — Lower Hinge + Drag/Carry",sub:"Hinge-dominant",
-    warmup:["Daily mobility (10 min)","Lower activation (5 min)","Deadlift ramp-up: empty → 50%x5 → 70%x3 → 85%x1-2"],
-    sections:[
-     {label:"Work",items:[
-      anchor("Deadlift / trap bar","4 × 3-5","2.5-3 min",""),
-      ex("Hip thrust","4 × 8-10","90-120s","1s pause at top"),
-      pick([opt("KB swing","4 × 15"),opt("Cable pull-through","4 × 12")],"60s","")
-     ]},
-     {label:"Finisher (10-12 min) · Carry medley",items:[
-      ex("Sandbag drag + KB farmer carry + bear-hug carry","3 rounds, 40 yd each","rest to keep form","Rescue drag + equipment carry")
-     ]}
-    ]},
    {title:"Day 4 — Upper Pull + Grip + KB End Block",sub:"Pull + grip + mobility",
     warmup:["Daily mobility (10 min)","Upper activation (5 min)","Pull-up ramp-up"],
     sections:[
      {label:"Work",items:[
       anchor("Weighted pull-up","4 × 5-8","2.5-3 min",""),
-      ex("Barbell / Pendlay row","3 × 6-8","90-120s",""),
+      ex("Dead-stop Pendlay row","3 × 6-8","90-120s","Reset the bar on the floor each rep"),
       ex("Straight-arm pulldown / KB high pull","3 × 12","60-90s","Ceiling breach/pull"),
-      ex("Towel / thick-grip dead hang","3 × max","60-90s","")
+      ex("Barbell curl","3 × 10","60s","Optional — first to cut if short","OPTIONAL"),
+      ex("Towel / thick-grip dead hang","3 × max","60-90s","","",TM)
      ]},
      {label:"KB End Block (10-12 min) · mobility emphasis",items:[
-      ex("Turkish get-up","3/side","slow",""),ex("KB arm bar","2 × 30s/side","—",""),ex("Goblet Cossack squat","3 × 6/side","—","Where the goblet load lives")
-     ]}
+      ex("Turkish get-up","3/side","slow",""),ex("KB arm bar","2 × 30s/side","—","","",TM),ex("Goblet Cossack squat","3 × 6/side","—","Where the goblet load lives")
+     ]},
+     {label:"SWAT Benchmark (test monthly)",items:[ex("Max strict pull-ups","1 all-out set","—","Log the rep count","TEST",RP),ex("Max sit-ups (2 min)","1 all-out set","—","Log the rep count","TEST",RP)]},
+     {label:"Finisher (8-10 min)",items:[ex("Assault bike intervals","30s hard / 60s easy × 6-8","—","Groin-safe conditioning; sprint version once cleared","",TM)]}
     ]}
-  ]},
+  ,
+   {title:"Day 1 — Lower Strength + Rescue Capacity",sub:"Squat-dominant",
+    warmup:["Daily mobility (10 min)","Lower activation (5 min): banded glute bridge, lateral walk","Back squat ramp-up: empty → 50%x5 → 70%x3 → 85%x1-2"],
+    sections:[
+     {label:"Work",items:[
+      ex("Box jump / low-box step-down","3 × 3","60s","Step-downs unless groin cleared","","reps"),
+      anchor("Back squat","4 × 4-6","2.5-3 min","Rotate Zercher pin squat every few weeks"),
+      pick([opt("Bulgarian split squat","3 × 8-10/leg"),opt("Walking lunge","3 × 10/leg")],"90-120s","",WR),
+      ex("Nordic curl","3 × 6-8","—","3s lower, superset with kickback","SUPERSET",RP),
+      ex("Cable kickback","3 × 15/side","60s after pair","",""),
+     ]},
+     {label:"Finisher (8-10 min)",items:[ex("Weighted box step-ups","3 min on / 90s off × 1-2","—","Wear a vest — Phase-A kit work · CPAT stair","",TM)]}
+    ]},
+   {title:"Day 2 — Upper Push + KB End Block",sub:"Press + shoulder mobility",
+    warmup:["Daily mobility (10 min)","Upper activation (5 min): band pull-apart, KB halo"],
+    sections:[
+     {label:"Work",items:[
+      anchor("Bench press","4 × 4-6","2.5-3 min",""),
+      ex("Standing DB/KB overhead press","4 × 6-8","90-120s","Ladder raise / pike pole"),
+      pick([opt("Weighted dip","4 × 5-6"),opt("Incline DB press","3 × 8-12")],"60-90s","Load the dip heavy",WR),
+      ex("Slamball overhead slam","4 × 8","60-90s","Forcible entry","",RP)
+     ]},
+     {label:"KB End Block (10-12 min) · shoulder emphasis",items:[
+      ex("Turkish get-up","3/side","slow","Log KB weight × reps"),ex("KB windmill","3 × 5/side","—",""),ex("KB halo","2 × 8/dir","—","")
+     ]},
+     {label:"SWAT Benchmark (test monthly)",items:[ex("Max push-ups (60s)","1 all-out set","—","Log the rep count","TEST",RP)]}
+    ]},
+   {title:"Day 3 — Lower Hinge + Drag/Carry",sub:"Hinge-dominant",
+    warmup:["Daily mobility (10 min)","Lower activation (5 min)","Deadlift ramp-up"],
+    sections:[
+     {label:"Work",items:[
+      pick([opt("Trap-bar deadlift","4 × 3-5"),opt("Conventional deadlift","4 × 3-5")],"2.5-3 min","Your heavy pull — pick one",WR),
+      ex("Hip thrust","4 × 8-10","90-120s","1s pause at top"),
+      pick([opt("KB swing","4 × 15"),opt("Cable pull-through","4 × 12")],"60s","",WR)
+     ]},
+     {label:"Finisher (10-12 min) · Carry medley",items:[ex("Sandbag drag + farmer carry + bear-hug carry","3 rounds, 40 yd","rest to keep form","Log the sandbag drag for time","",TM)]}
+    ]}]},
   "3day":{label:"3-Day",days:[
    {title:"Day 1 — Lower + Push",sub:"Full body",
     warmup:["Daily mobility (10 min)","Activation (5 min)","Squat + bench ramp-ups"],
@@ -282,138 +246,165 @@ const DEFAULTS={
      {label:"Work",items:[
       anchor("Back squat","4 × 4-6","2.5-3 min",""),
       anchor("Bench press","4 × 5-6","2.5-3 min",""),
-      pick([opt("Bulgarian split squat","3 × 8/leg"),opt("Walking lunge","3 × 10/leg")],"90s",""),
-      ex("Cable kickback","2 × 15/side","45-60s","Cut first if running long")
+      pick([opt("Bulgarian split squat","3 × 8/leg"),opt("Walking lunge","3 × 10/leg")],"90s","",WR),
+      ex("Cable kickback","2 × 15/side","45-60s","Cut first if running long","")
      ]},
-     {label:"Finisher (8-10 min)",items:[ex("Box step-ups then slamball slams","3 × 8","—","")]}
+     {label:"Finisher (8-10 min)",items:[ex("Box step-ups, then slamball slams","3 × 8","—","","",TM)]},
+     {label:"SWAT Benchmark (test monthly)",items:[ex("Max push-ups (60s)","1 all-out set","—","Log the rep count","TEST",RP)]}
     ]},
    {title:"Day 2 — Hinge + Pull + Grip",sub:"Full body",
     warmup:["Daily mobility (10 min)","Activation (5 min)","Deadlift + pull-up ramp-ups"],
     sections:[
      {label:"Work",items:[
-      anchor("Deadlift / trap bar","4 × 3-5","2.5-3 min",""),
+      pick([opt("Trap-bar deadlift","4 × 3-5"),opt("Conventional deadlift","4 × 3-5")],"2.5-3 min","Your heavy pull — pick one",WR),
       anchor("Weighted pull-up","4 × 5-8","2.5-3 min",""),
-      pick([opt("Hip thrust","3 × 10"),opt("KB swing","4 × 15"),opt("Cable pull-through","4 × 12")],"90s",""),
-      ex("Dead hang","3 × max","60-90s","")
+      pick([opt("Hip thrust","3 × 10"),opt("KB swing","4 × 15"),opt("Cable pull-through","4 × 12")],"90s","",WR),
+      ex("Barbell curl","3 × 10","60s","Optional","OPTIONAL"),
+      ex("Dead hang","3 × max","60-90s","","",TM)
      ]},
-     {label:"Finisher (10-12 min)",items:[ex("Carry medley","3 rounds","rest to keep form","")]}
+     {label:"Finisher (10-12 min)",items:[ex("Carry medley","3 rounds","rest to keep form","","",TM)]},
+     {label:"SWAT Benchmark (test monthly)",items:[ex("Max strict pull-ups","1 all-out set","—","Log the rep count","TEST",RP),ex("Max sit-ups (2 min)","1 all-out set","—","Log the rep count","TEST",RP)]}
     ]},
    {title:"Day 3 — Athletic + KB",sub:"Full body + mobility",
     warmup:["Daily mobility (10 min)","Activation (5 min)"],
     sections:[
      {label:"Work",items:[
-      anchor("Front squat","4 × 5","2.5-3 min","Kept as a real squat anchor"),
+      pick([opt("Front squat","4 × 5"),opt("Zercher pin squat","4 × 5")],"2.5-3 min","Your heavy squat — pick one",WR),
       ex("Turkish get-up","4/side","slow",""),ex("KB windmill","3 × 5/side","60s",""),ex("Overhead press","3 × 8","90s","")
      ]},
-     {label:"Finisher (8-10 min)",items:[ex("Battle bike","steady or intervals","—","Intervals only if groin cleared")]}
+     {label:"Finisher (8-10 min)",items:[ex("Battle bike","steady or intervals","—","Intervals only if groin cleared","",TM)]}
     ]}
   ]}
  },
  home:{
   "4day":{label:"4-Day",days:[
-   {title:"Day 1 — Lower (Bodyweight)",sub:"No equipment · body + floor",
-    warmup:["Daily mobility (10 min)","Lower activation: bodyweight glute bridge x15, cossack x5/side"],
+   {title:"Day 4 — Upper Pull + Core",sub:"No equipment · body + floor",
+    warmup:["Daily mobility (10 min)","Prone Y-raise prep"],
     sections:[
      {label:"Work",items:[
-      anchor("Pistol squat progression","3 × 5-8/leg","90s","Hold a doorframe lightly only if needed"),
-      pick([opt("Split squat (bodyweight)","3 × 12/leg"),opt("Walking lunge","3 × 12/leg")],"75s",""),
-      ex("Sliding leg curl (heels on floor, bridge + curl)","3 × 8-12","75s","Hamstring, no equipment"),
-      ex("Cossack squat","3 × 8/side","60s","")
+      anchor("Prone Y-T-W raises (superman pulls)","3 × 12","75s","Light back work — no bar","",RP),
+      ex("Superman / reverse snow angel","3 × 15","60s","Posterior chain","",RP),
+      ex("Hollow body hold","3 × 30-45s","60s","Core","",TM),
+      ex("Side plank","3 × 30s/side","45s","","",TM)
      ]},
-     {label:"Finisher (8 min)",items:[ex("Squat jumps + wall sit","8 × (10 jumps / 30s sit)","—","Swap jumps for tempo squats if groin flags")]}
+     {label:"Mobility End Block (10 min)",items:[
+      ex("Turkish get-up (no load)","3/side","slow","","",RP),ex("Cossack squat","3 × 6/side","—","","",RP),ex("T-spine rotations","2 × 8/side","—","","",RP)
+     ]},
+     {label:"SWAT Benchmark (test monthly)",items:[ex("Max sit-ups (2 min)","1 all-out set","—","Log the rep count · pull-ups need a bar (gym)","TEST",RP)]}
+    ]}
+  ,
+   {title:"Day 1 — Lower (Bodyweight)",sub:"No equipment · body + floor",
+    warmup:["Daily mobility (10 min)","Lower activation: glute bridge, cossack"],
+    sections:[
+     {label:"Work",items:[
+      anchor("Pistol squat progression","3 × 5-8/leg","90s","Hold a doorframe lightly if needed","",RP),
+      pick([opt("Split squat (bodyweight)","3 × 12/leg"),opt("Walking lunge","3 × 12/leg")],"75s","",RP),
+      ex("Sliding leg curl (heels on floor)","3 × 8-12","75s","Hamstring, no equipment","",RP),
+      ex("Cossack squat","3 × 8/side","60s","","",RP)
+     ]},
+     {label:"Finisher (8 min)",items:[ex("Squat jumps + wall sit","8 × (10 jumps / 30s sit)","—","Tempo squats if groin flags","",TM)]}
     ]},
    {title:"Day 2 — Upper Push (Bodyweight)",sub:"No equipment · body + floor",
-    warmup:["Daily mobility (10 min)","Shoulder prep: arm circles, scap push-ups x10"],
+    warmup:["Daily mobility (10 min)","Scap push-ups, arm circles"],
     sections:[
      {label:"Work",items:[
-      anchor("Push-up (progress to archer / diamond)","4 × AMRAP-2","90s",""),
-      ex("Pike push-up","4 × 6-10","90s","Overhead / press analog"),
-      ex("Diamond / close-grip push-up","3 × 10-15","60s","Triceps"),
-      ex("Explosive push-up (or slow negative)","4 × 5","90s","Power")
+      anchor("Push-up (progress to archer / diamond)","4 × AMRAP-2","90s","","",RP),
+      ex("Pike push-up","4 × 6-10","90s","Overhead analog","",RP),
+      ex("Diamond / close-grip push-up","3 × 10-15","60s","Triceps","",RP),
+      ex("Explosive push-up (or slow negative)","4 × 5","90s","Power","",RP)
      ]},
      {label:"Mobility End Block (10 min)",items:[
-      ex("Turkish get-up (no load)","3/side","slow",""),ex("Bodyweight windmill","3 × 5/side","—",""),ex("Shoulder halo / arm circles","2 × 8/dir","—","")
-     ]}
+      ex("Turkish get-up (no load)","3/side","slow","","",RP),ex("Bodyweight windmill","3 × 5/side","—","","",RP),ex("Shoulder halo / arm circles","2 × 8/dir","—","","",RP)
+     ]},
+     {label:"SWAT Benchmark (test monthly)",items:[ex("Max push-ups (60s)","1 all-out set","—","Log the rep count","TEST",RP)]}
     ]},
    {title:"Day 3 — Lower Hinge + Crawl Capacity",sub:"No equipment · body + floor",
-    warmup:["Daily mobility (10 min)","Glute activation: single-leg bridge x10/side"],
+    warmup:["Daily mobility (10 min)","Single-leg bridge activation"],
     sections:[
      {label:"Work",items:[
-      anchor("Single-leg RDL (bodyweight)","3 × 10/leg","75s","Balance + hamstring"),
-      ex("Single-leg glute bridge / hip thrust off floor","3 × 12/leg","60s",""),
-      pick([opt("Glute bridge march","3 × 20 steps"),opt("Reverse lunge","3 × 12/leg")],"60s","")
+      anchor("Single-leg RDL (bodyweight)","3 × 10/leg","75s","Balance + hamstring","",RP),
+      ex("Single-leg glute bridge / hip thrust","3 × 12/leg","60s","","",RP),
+      pick([opt("Glute bridge march","3 × 20 steps"),opt("Reverse lunge","3 × 12/leg")],"60s","",RP)
      ]},
-     {label:"Finisher (10-12 min) · Crawl circuit",items:[
-      ex("Bear crawl + low combat crawl + mountain climbers","4 rounds","rest to keep form","Maps to CPAT search / crawl")
-     ]}
-    ]},
-   {title:"Day 4 — Upper Pull + Core",sub:"No equipment · body + floor",
-    warmup:["Daily mobility (10 min)","Prone scap prep: floor Y-raises x10"],
-    sections:[
-     {label:"Work",items:[
-      anchor("Prone Y-T-W raises (superman pulls)","3 × 12","75s","Back / rear delt without a bar — the light spot"),
-      ex("Superman / reverse snow angel","3 × 15","60s","Posterior chain"),
-      ex("Hollow body hold","3 × 30-45s","60s","Core"),
-      ex("Side plank","3 × 30s/side","45s","")
-     ]},
-     {label:"Mobility End Block (10 min)",items:[
-      ex("Turkish get-up (no load)","3/side","slow",""),ex("Cossack squat","3 × 6/side","—",""),ex("T-spine rotations / openers","2 × 8/side","—","")
-     ]}
-    ]}
-  ]},
+     {label:"Finisher (10-12 min) · Crawl circuit",items:[ex("Bear crawl + low crawl + mountain climbers","4 rounds","rest to keep form","Maps to CPAT search / crawl","",TM)]}
+    ]}]},
   "3day":{label:"3-Day",days:[
    {title:"Day 1 — Lower + Push (Bodyweight)",sub:"No equipment · body + floor",
-    warmup:["Daily mobility (10 min)","Activation: glute bridge x15, scap push-up x10"],
+    warmup:["Daily mobility (10 min)","Glute bridge, scap push-up"],
     sections:[
      {label:"Work",items:[
-      anchor("Pistol squat progression","3 × 5-8/leg","90s",""),
-      anchor("Push-up (progress to archer / diamond)","4 × AMRAP-2","90s",""),
-      pick([opt("Split squat (bodyweight)","3 × 12/leg"),opt("Walking lunge","3 × 12/leg")],"75s",""),
-      ex("Pike push-up","3 × 8","75s","Overhead analog")
+      anchor("Pistol squat progression","3 × 5-8/leg","90s","","",RP),
+      anchor("Push-up (progress to archer / diamond)","4 × AMRAP-2","90s","","",RP),
+      pick([opt("Split squat (bodyweight)","3 × 12/leg"),opt("Walking lunge","3 × 12/leg")],"75s","",RP),
+      ex("Pike push-up","3 × 8","75s","Overhead analog","",RP)
      ]},
-     {label:"Finisher (8-10 min)",items:[ex("Squat jump + push-up circuit","5 rounds","—","")]}
+     {label:"Finisher (8-10 min)",items:[ex("Squat jump + push-up circuit","5 rounds","—","","",TM)]},
+     {label:"SWAT Benchmark (test monthly)",items:[ex("Max push-ups (60s)","1 all-out set","—","Log the rep count","TEST",RP)]}
     ]},
    {title:"Day 2 — Hinge + Pull + Core (Bodyweight)",sub:"No equipment · body + floor",
-    warmup:["Daily mobility (10 min)","Prone Y-raise x10, single-leg bridge x10/side"],
+    warmup:["Daily mobility (10 min)","Prone Y-raise, single-leg bridge"],
     sections:[
      {label:"Work",items:[
-      anchor("Single-leg RDL (bodyweight)","3 × 10/leg","75s",""),
-      ex("Prone Y-T-W raises (superman pulls)","3 × 12","60s","Light back work — no bar"),
-      ex("Sliding leg curl (heels on floor)","3 × 8-12","60s",""),
-      ex("Hollow body hold","3 × 40s","60s","")
+      anchor("Single-leg RDL (bodyweight)","3 × 10/leg","75s","","",RP),
+      ex("Prone Y-T-W raises (superman pulls)","3 × 12","60s","Light back work","",RP),
+      ex("Sliding leg curl (heels on floor)","3 × 8-12","60s","","",RP),
+      ex("Hollow body hold","3 × 40s","60s","","",TM)
      ]},
-     {label:"Finisher (10-12 min) · Crawl circuit",items:[ex("Bear crawl + low crawl + mountain climbers","4 rounds","rest to keep form","CPAT crawl")]}
+     {label:"Finisher (10-12 min) · Crawl circuit",items:[ex("Bear crawl + low crawl + mountain climbers","4 rounds","rest to keep form","CPAT crawl","",TM)]},
+     {label:"SWAT Benchmark (test monthly)",items:[ex("Max sit-ups (2 min)","1 all-out set","—","Log the rep count","TEST",RP)]}
     ]},
    {title:"Day 3 — Athletic + Mobility (Bodyweight)",sub:"No equipment · body + floor",
-    warmup:["Daily mobility (10 min)","Arm circles, cossack x5/side"],
+    warmup:["Daily mobility (10 min)","Arm circles, cossack"],
     sections:[
      {label:"Work",items:[
-      anchor("Cossack squat","3 × 8/side","75s",""),
-      ex("Turkish get-up (no load)","4/side","slow",""),ex("Pike push-up","3 × 8","75s",""),ex("Bodyweight windmill","3 × 5/side","60s","")
+      anchor("Cossack squat","3 × 8/side","75s","","",RP),
+      ex("Turkish get-up (no load)","4/side","slow","","",RP),ex("Pike push-up","3 × 8","75s","","",RP),ex("Bodyweight windmill","3 × 5/side","60s","","",RP)
      ]},
-     {label:"Finisher (8-10 min)",items:[ex("Mountain climbers / sprawls","8 × 30s","—","")]}
+     {label:"Finisher (8-10 min)",items:[ex("Mountain climbers / sprawls","8 × 30s","—","","",TM)]}
     ]}
   ]}
  }
 };
 
 /* ---------- state ---------- */
-let state, storageOK=true;
+let state,storageOK=true;
 function clone(o){return JSON.parse(JSON.stringify(o))}
-function fresh(){return{v:3,owner:"",location:"gym",activePlan:"4day",activeTab:"plan",activeDay:{"4day":0,"3day":0},plans:clone(DEFAULTS),log:[],draft:null}}
+function fresh(){return{schema:SCHEMA,owner:"",location:"gym",activePlan:"4day",activeTab:"plan",activeDay:{"4day":0,"3day":0},plans:clone(DEFAULTS),log:[],condLog:[],draft:null}}
 function valid(s){return s&&s.plans&&s.plans.gym&&s.plans.home&&s.plans.gym["4day"]&&s.plans.home["4day"]}
 function load(){
   try{
+    let data=null;
     const raw=localStorage.getItem(KEY);
-    if(raw){state=JSON.parse(raw);}
-    else{state=fresh();}
-    if(!valid(state)){const lg=(state&&state.log)||[],ow=(state&&state.owner)||"";state=fresh();state.log=lg;state.owner=ow;}
-    if(!state.draft)state.draft=null;
+    if(raw){data=JSON.parse(raw);}
+    else{
+      // one-time recovery: pull data from the newest old versioned slot that still holds logs
+      let best=null;
+      for(const k of LEGACY){try{const o=JSON.parse(localStorage.getItem(k)||"null");if(o){if(!best)best=o;if(o.log&&o.log.length){best=o;break;}}}catch(e){}}
+      data=best;
+    }
+    state=fresh();
+    if(data){
+      // logs, conditioning, and owner are ALWAYS preserved — never wiped by an update
+      if(Array.isArray(data.log))state.log=data.log;
+      if(Array.isArray(data.condLog))state.condLog=data.condLog;
+      if(data.owner)state.owner=data.owner;
+      // plans + in-progress draft are kept only when the plan structure matches this build
+      if(data.schema===SCHEMA&&valid(data)){
+        state.plans=data.plans;
+        if(data.location)state.location=data.location;
+        if(data.activePlan)state.activePlan=data.activePlan;
+        if(data.activeDay)state.activeDay=data.activeDay;
+        if(data.draft)state.draft=data.draft;
+      }
+    }
   }catch(e){storageOK=false;state=fresh();}
+  if(!state.condLog)state.condLog=[];
+  if(!state.draft)state.draft=null;
+  save(); // write to the stable key now so recovered logs stick even if the app closes
   if(!storageOK)document.getElementById("warn").classList.add("show");
 }
 let saveT;
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){storageOK=false;document.getElementById("warn").classList.add("show")}}
+function save(){try{state.schema=SCHEMA;localStorage.setItem(KEY,JSON.stringify(state))}catch(e){storageOK=false;var w=document.getElementById("warn");if(w)w.classList.add("show")}}
 function saveSoon(){clearTimeout(saveT);saveT=setTimeout(save,300)}
 
 /* ---------- helpers ---------- */
@@ -424,8 +415,19 @@ function splitKey(s){return s==="3-Day"?"3day":"4day"}
 function dayIdx(label){return Math.max(0,(parseInt((label||"").replace(/\D/g,""),10)||1)-1)}
 function parseSets(spec){const m=(spec||"").match(/^\s*(\d+)\s*×/);let n=m?parseInt(m[1],10):1;if(!n||n<1)n=1;if(n>8)n=8;return n}
 function choiceItems(loc,split,di){const day=state.plans[loc][split].days[di];if(!day)return[];const a=[];day.sections.forEach(s=>s.items.forEach(it=>{if(it.choice)a.push(it)}));return a}
+function metricFields(m){
+  if(m==="reps")return[{k:"r",label:"Reps",ph:"reps / each"}];
+  if(m==="time")return[{k:"t",label:"Time / Dist",ph:"e.g. 45s · 40 yd"}];
+  if(m==="distance_time")return[{k:"d",label:"Distance",ph:"e.g. 3 mi"},{k:"t",label:"Time",ph:"e.g. 19:40"}];
+  return[{k:"w",label:"Weight",ph:"lb / BW"},{k:"r",label:"Reps",ph:"reps / each"}];
+}
+function metricLabel(m){return m==="reps"?"reps":m==="time"?"time":m==="distance_time"?"dist+time":"wt×reps"}
+function fmtSet(s,m){
+  if(m==="weight_reps"){const w=(s.w||"").trim(),r=(s.r||"").trim();if(w&&r)return w+" × "+r;return w||r||"";}
+  return metricFields(m).map(f=>(s[f.k]||"").trim()).filter(Boolean).join(" ");
+}
 
-/* ---------- in-page dialogs (work where native confirm/alert are blocked) ---------- */
+/* ---------- in-page dialogs ---------- */
 function askConfirm(msg,onYes,yesLabel){
   let ov=document.getElementById("confirmOverlay");
   if(!ov){ov=document.createElement("div");ov.id="confirmOverlay";ov.className="overlay";document.body.appendChild(ov);}
@@ -449,10 +451,11 @@ function render(){
   document.getElementById("loc-home").classList.toggle("on",state.location==="home");
   document.getElementById("sel4").classList.toggle("on",state.activePlan==="4day");
   document.getElementById("sel3").classList.toggle("on",state.activePlan==="3day");
-  ["plan","log","info"].forEach(t=>document.getElementById("tab-"+t).classList.toggle("on",state.activeTab===t));
+  ["plan","log","cond","info"].forEach(t=>document.getElementById("tab-"+t).classList.toggle("on",state.activeTab===t));
   const app=document.getElementById("app");
   if(state.activeTab==="plan")renderPlan(app);
   else if(state.activeTab==="log")renderLog(app);
+  else if(state.activeTab==="cond")renderCond(app);
   else renderInfo(app);
 }
 
@@ -462,34 +465,33 @@ function renderPlan(app){
   let h='<div class="daybar">';
   plan.days.forEach((d,i)=>{h+=`<button class="${i===di?'on':''}" onclick="setDay(${i})">Day ${i+1}</button>`});
   h+='</div><div class="wrap" style="padding-top:16px">';
-  h+=`<p class="daytitle">${esc(day.title)}</p><p class="daysub">${esc(day.sub)}</p>`;
+  h+=`<p class="daytitle">${esc(day.title.replace(/^Day \d+ — /,''))}</p><p class="daysub">${esc(day.sub)}</p>`;
   h+='<details class="warmup"><summary>Warm-up <span>tap</span></summary><div class="body"><ul style="margin:4px 0;padding-left:16px">';
   day.warmup.forEach(w=>h+=`<li>${esc(w)}</li>`);
   h+='</ul></div></details>';
   day.sections.forEach((sec,si)=>{
     h+=`<div class="section"><div class="seclabel">${esc(sec.label)}</div>`;
     sec.items.forEach((it,ii)=>{
+      const ml=`<span class="chip metric">${metricLabel(it.metric)}</span>`;
       if(it.choice){
         const sel=it.selected||0,cur=it.options[sel]||it.options[0];
         let tg='<div class="toggle">';
         it.options.forEach((o,oi)=>{tg+=`<button class="${oi===sel?'on':''}" onclick="selectOpt(${si},${ii},${oi})">${esc(o.name)}</button>`});
         tg+='</div>';
         h+=`<div class="row"><div class="top"><div class="idx">${String(ii+1).padStart(2,'0')}</div>
-          <div class="namewrap"><input class="name" data-p="${si}" data-i="${ii}" data-k="name" data-choice="1" value="${esc(cur.name)}"></div>
+          <div class="namewrap"><input class="name" data-p="${si}" data-i="${ii}" data-k="name" data-choice="1" value="${esc(cur.name)}">${ml}</div>
           <button class="del" onclick="delItem(${si},${ii})">×</button></div>
           <div class="choicelabel">Choose one — logged as selected</div>${tg}
-          <div class="spec">
-            <div class="field f-sr"><span>Sets×Reps</span><input data-p="${si}" data-i="${ii}" data-k="spec" data-choice="1" value="${esc(cur.spec)}"></div>
-            <div class="field f-rest"><span>Rest</span><input data-p="${si}" data-i="${ii}" data-k="rest" value="${esc(it.rest)}"></div></div>
+          <div class="spec"><div class="field f-sr"><span>Sets×Reps</span><input data-p="${si}" data-i="${ii}" data-k="spec" data-choice="1" value="${esc(cur.spec)}"></div>
+          <div class="field f-rest"><span>Rest</span><input data-p="${si}" data-i="${ii}" data-k="rest" value="${esc(it.rest)}"></div></div>
           <textarea class="note" rows="1" placeholder="note / cue…" data-p="${si}" data-i="${ii}" data-k="note">${esc(it.note)}</textarea></div>`;
       }else{
         const chip=it.tag?`<span class="chip">${esc(it.tag)}</span>`:"";
         h+=`<div class="row ${it.anchor?'anchor':''}"><div class="top"><div class="idx">${String(ii+1).padStart(2,'0')}</div>
-          <div class="namewrap"><input class="name" data-p="${si}" data-i="${ii}" data-k="name" value="${esc(it.name)}">${chip}</div>
+          <div class="namewrap"><input class="name" data-p="${si}" data-i="${ii}" data-k="name" value="${esc(it.name)}">${chip}${ml}</div>
           <button class="del" onclick="delItem(${si},${ii})">×</button></div>
-          <div class="spec">
-            <div class="field f-sr"><span>Sets×Reps</span><input data-p="${si}" data-i="${ii}" data-k="spec" value="${esc(it.spec)}"></div>
-            <div class="field f-rest"><span>Rest</span><input data-p="${si}" data-i="${ii}" data-k="rest" value="${esc(it.rest)}"></div></div>
+          <div class="spec"><div class="field f-sr"><span>Sets×Reps</span><input data-p="${si}" data-i="${ii}" data-k="spec" value="${esc(it.spec)}"></div>
+          <div class="field f-rest"><span>Rest</span><input data-p="${si}" data-i="${ii}" data-k="rest" value="${esc(it.rest)}"></div></div>
           <textarea class="note" rows="1" placeholder="note / cue…" data-p="${si}" data-i="${ii}" data-k="note">${esc(it.note)}</textarea></div>`;
       }
     });
@@ -514,8 +516,7 @@ function addItem(si){CUR().days[state.activeDay[state.activePlan]].sections[si].
 function delItem(si,ii){CUR().days[state.activeDay[state.activePlan]].sections[si].items.splice(ii,1);save();render()}
 function resetDay(){const di=state.activeDay[state.activePlan];
   askConfirm("Reset this day back to the original plan? Your log is untouched.",()=>{
-    state.plans[state.location][state.activePlan].days[di]=clone(DEFAULTS[state.location][state.activePlan].days[di]);save();render();
-  },"Reset")}
+    state.plans[state.location][state.activePlan].days[di]=clone(DEFAULTS[state.location][state.activePlan].days[di]);save();render();},"Reset")}
 
 /* ---------- LOG ---------- */
 function todayStr(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0')}
@@ -533,7 +534,7 @@ function renderLog(app){
       <div class="fld"><label>Day</label><select id="lg-day" onchange="initLogVars()">${dayOpts}</select></div>
     </div>
     <div id="lg-vars"></div>
-    <div class="btnrow"><button class="solid" onclick="startSession()">Start set-by-set</button><button class="outline" onclick="quickLog()">Notes only</button></div>
+    <div class="btncol"><button class="solid" onclick="startSession()">Start set-by-set</button><button class="outline" onclick="quickLog()">Notes only</button></div>
   </div>`;
   h+=renderHistory();
   app.innerHTML=h;
@@ -542,7 +543,7 @@ function renderLog(app){
 function onLogSelChange(){
   const loc=locKey(document.getElementById('lg-loc').value),split=splitKey(document.getElementById('lg-plan').value);
   const daySel=document.getElementById('lg-day');
-  const nDays=state.plans[loc][split].days.length,cur=Math.min(dayIdx(daySel.value),nDays-1);
+  const n=state.plans[loc][split].days.length,cur=Math.min(dayIdx(daySel.value),n-1);
   daySel.innerHTML=state.plans[loc][split].days.map((d,i)=>`<option value="Day ${i+1}"${i===cur?' selected':''}>Day ${i+1}</option>`).join("");
   initLogVars();
 }
@@ -560,7 +561,6 @@ function renderLogVars(){
   box.innerHTML=h;
 }
 function setLogSel(idx,oi){logSel[idx]=oi;renderLogVars()}
-
 function buildSession(){
   const date=document.getElementById("lg-date").value||todayStr();
   const locLabel=document.getElementById("lg-loc").value,planLabel=document.getElementById("lg-plan").value,dayLabel=document.getElementById("lg-day").value;
@@ -568,11 +568,11 @@ function buildSession(){
   const day=state.plans[loc][split].days[di];
   let ci=0;const choices=[],exercises=[];
   day.sections.forEach(sec=>sec.items.forEach(it=>{
-    let name,spec;
+    let name,spec;const metric=it.metric||"weight_reps";
     if(it.choice){const oi=logSel[ci]!=null?logSel[ci]:(it.selected||0);name=it.options[oi].name;spec=it.options[oi].spec;choices.push(name);ci++;}
     else{name=it.name;spec=it.spec;}
-    const n=parseSets(spec),sets=[];for(let k=0;k<n;k++)sets.push({w:"",r:""});
-    exercises.push({name,spec,sets});
+    const n=parseSets(spec),sets=[];for(let k=0;k<n;k++)sets.push({});
+    exercises.push({name,spec,metric,sets});
   }));
   return{date,locLabel,planLabel,dayLabel,choices,exercises,notes:""};
 }
@@ -584,77 +584,237 @@ function quickLog(){
 }
 function renderSession(app){
   const d=state.draft;
+  const badges=[d.locLabel?`<span class="badge loc">${esc(d.locLabel)}</span>`:"",`<span class="badge">${esc(d.planLabel)}</span>`,d.dayLabel?`<span class="badge">${esc(d.dayLabel)}</span>`:""].join("");
   let h=`<div class="wrap" style="padding-top:16px">
-    <div class="sesshead"><span class="sessdate">${esc(d.date)}</span><span class="badge loc">${esc(d.locLabel)}</span><span class="badge">${esc(d.planLabel)}</span><span class="badge">${esc(d.dayLabel)}</span></div>
-    <p class="daysub" style="margin:0 0 14px">Enter weight and reps per set as you go — saves automatically</p>`;
+    <div class="sesshead"><input type="date" id="ss-date" class="ssdate" value="${esc(d.date)}">${badges}</div>
+    <p class="daysub" style="margin:0 0 6px">Change the date above if you're logging this after the fact.</p>
+    <p class="daysub" style="margin:0 0 14px">Enter what each field asks for — saves automatically</p>`;
   d.exercises.forEach((exx,ei)=>{
-    h+=`<div class="exlog"><div class="exname">${esc(exx.name)}</div><div class="exsub">target ${esc(exx.spec||"")}</div>`;
+    const fields=metricFields(exx.metric||"weight_reps");
+    h+=`<div class="exlog"><div class="exname">${esc(exx.name)}</div>${exx.spec?`<div class="exsub">target ${esc(exx.spec)}</div>`:""}`;
     exx.sets.forEach((st,si)=>{
-      h+=`<div class="setrow"><span class="setn">Set ${si+1}</span>
-        <input inputmode="decimal" placeholder="lb" data-e="${ei}" data-s="${si}" data-k="w" value="${esc(st.w)}">
-        <span class="setx">×</span>
-        <input inputmode="numeric" placeholder="reps" data-e="${ei}" data-s="${si}" data-k="r" value="${esc(st.r)}">
-        <button class="setdel" onclick="delSet(${ei},${si})">×</button></div>`;
+      h+=`<div class="setrow"><span class="setn">Set ${si+1}</span>`;
+      fields.forEach(f=>{h+=`<div class="setf"><label>${esc(f.label)}</label><input type="text" placeholder="${esc(f.ph)}" data-e="${ei}" data-s="${si}" data-k="${f.k}" value="${esc(st[f.k]||"")}"></div>`});
+      h+=`<button class="setdel" onclick="delSet(${ei},${si})">×</button></div>`;
     });
     h+=`<button class="setadd" onclick="addSet(${ei})">+ Set</button></div>`;
   });
   h+=`<div class="fld full" style="margin-top:6px"><label>Session notes</label><textarea id="ss-notes" placeholder="how it felt · groin · total time">${esc(d.notes)}</textarea></div>
-    <div class="btnrow"><button class="solid" onclick="commitSession()">Log session</button><button class="outline warnbtn" onclick="discardSession()">Discard</button></div></div>`;
+    <div class="btncol"><button class="solid" onclick="commitSession()">Log session</button><button class="outline warnbtn" onclick="discardSession()">Discard</button></div></div>`;
   app.innerHTML=h;
-  app.querySelectorAll(".setrow input").forEach(el=>el.addEventListener("input",e=>{
+  app.querySelectorAll(".setf input").forEach(el=>el.addEventListener("input",e=>{
     const{e:ei,s:si,k}=e.target.dataset;state.draft.exercises[+ei].sets[+si][k]=e.target.value;saveSoon();
   }));
   const nt=document.getElementById("ss-notes");if(nt){nt.addEventListener("input",()=>{state.draft.notes=nt.value;saveSoon()});autosize(nt);}
+  const dt=document.getElementById("ss-date");if(dt){dt.addEventListener("input",()=>{state.draft.date=dt.value||todayStr();saveSoon()});}
 }
-function addSet(ei){state.draft.exercises[ei].sets.push({w:"",r:""});save();render()}
+function addSet(ei){state.draft.exercises[ei].sets.push({});save();render()}
 function delSet(ei,si){if(state.draft.exercises[ei].sets.length<=1)return;state.draft.exercises[ei].sets.splice(si,1);save();render()}
+function filled(s){return Object.keys(s).some(k=>(s[k]||"").trim())}
 function commitSession(){
   const d=state.draft;
-  const exercises=d.exercises.map(x=>({name:x.name,sets:x.sets.filter(s=>(s.w||"").trim()||(s.r||"").trim())})).filter(x=>x.sets.length);
+  const exercises=d.exercises.map(x=>({name:x.name,metric:x.metric||"weight_reps",sets:x.sets.filter(filled)})).filter(x=>x.sets.length);
   state.log.push({id:Date.now(),date:d.date,locLabel:d.locLabel,planLabel:d.planLabel,dayLabel:d.dayLabel,choices:d.choices,exercises,notes:(d.notes||"").trim()});
   state.draft=null;save();render();
 }
 function discardSession(){askConfirm("Discard this in-progress session? Entered sets will be lost.",()=>{state.draft=null;save();render()},"Discard")}
-
 function renderHistory(){
   let h=`<div class="section"><div class="seclabel">History</div>`;
   if(!state.log.length){h+=`<div class="empty">No sessions logged yet.<br>Start one above and it appears here.</div></div>`;return h;}
   state.log.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).forEach(e=>{
     const loc=e.locLabel?`<span class="badge loc">${esc(e.locLabel)}</span>`:"";
+    const dayb=e.dayLabel?`<span class="badge">${esc(e.dayLabel)}</span>`:"";
     const vars=(e.choices&&e.choices.length)?e.choices.map(c=>`<span class="badge var">${esc(c)}</span>`).join(""):"";
     let sets="";
     if(e.exercises&&e.exercises.length){sets='<div class="logsets">';
-      e.exercises.forEach(x=>{const parts=x.sets.map(s=>((s.w||"").trim()?(s.w+"×"):"")+((s.r||"").trim()||(s.w?"":"—"))).join(" · ");sets+=`<div class="exl"><b>${esc(x.name)}</b> — ${esc(parts)}</div>`;});
+      e.exercises.forEach(x=>{const m=x.metric||"weight_reps";const parts=x.sets.map(s=>fmtSet(s,m)).filter(Boolean).join(" · ");if(parts)sets+=`<div class="exl"><b>${esc(x.name)}</b> — ${esc(parts)}</div>`;});
       sets+='</div>';}
     h+=`<div class="logitem"><button class="del" onclick="delLog(${e.id})">×</button>
-      <div class="meta"><span class="logdate">${esc(e.date)}</span>${loc}<span class="badge">${esc(e.planLabel||e.plan||'')}</span><span class="badge">${esc(e.dayLabel||e.day||'')}</span>${vars}</div>
+      <div class="meta"><span class="logdate">${esc(e.date)}</span>${loc}<span class="badge">${esc(e.planLabel||'')}</span>${dayb}${vars}</div>
       ${sets}${e.notes?`<p>${esc(e.notes)}</p>`:""}</div>`;
   });
   h+=`</div>`;return h;
 }
 function delLog(id){askConfirm("Delete this log entry?",()=>{state.log=state.log.filter(e=>e.id!==id);save();render()},"Delete")}
 
-/* ---------- INFO ---------- */
+/* ---------- COND (conditioning + running) ---------- */
+const COND_TYPES=[
+ {kind:"Run",metric:"distance_time"},
+ {kind:"Time-trial 1.5 mi",metric:"time"},
+ {kind:"Time-trial 3 mi",metric:"time"},
+ {kind:"Sprints",metric:"time"},
+ {kind:"Sandbag / dummy drag",metric:"time"},
+ {kind:"Bike / incline walk",metric:"time"},
+ {kind:"Max push-ups (60s)",metric:"reps"},
+ {kind:"Max strict pull-ups",metric:"reps"},
+ {kind:"Max sit-ups (2 min)",metric:"reps"},
+ {kind:"Other",metric:"time"}
+];
+function renderCondFields(){
+  const sel=document.getElementById("cd-kind");if(!sel)return;
+  const m=COND_TYPES[+sel.value].metric,box=document.getElementById("cd-fields");
+  box.innerHTML=metricFields(m).map(f=>`<div class="fld"><label>${esc(f.label)}</label><input type="text" id="cd-${f.k}" placeholder="${esc(f.ph)}"></div>`).join("");
+}
+function logCond(){
+  const date=document.getElementById("cd-date").value||todayStr();
+  const i=+document.getElementById("cd-kind").value,kind=COND_TYPES[i].kind,m=COND_TYPES[i].metric;
+  const vals={};let any=false;
+  metricFields(m).forEach(f=>{const el=document.getElementById("cd-"+f.k);const v=el?el.value:"";vals[f.k]=v;if((v||"").trim())any=true;});
+  const notes=(document.getElementById("cd-notes").value||"").trim();
+  if(!any&&!notes){toast("Enter at least one value.");return;}
+  state.condLog.push({id:Date.now(),date,kind,metric:m,vals,notes});save();render();toast("Conditioning logged.");
+}
+function delCondLog(id){askConfirm("Delete this conditioning entry?",()=>{state.condLog=state.condLog.filter(e=>e.id!==id);save();render()},"Delete")}
+function renderCond(app){
+  const kindOpts=COND_TYPES.map((c,i)=>`<option value="${i}">${esc(c.kind)}</option>`).join("");
+  let h=`<div class="wrap" style="padding-top:16px">
+    <div class="logform">
+      <h3>Log conditioning</h3>
+      <div class="grid2">
+        <div class="fld"><label>Date</label><input type="date" id="cd-date" value="${todayStr()}"></div>
+        <div class="fld"><label>Type</label><select id="cd-kind" onchange="renderCondFields()">${kindOpts}</select></div>
+      </div>
+      <div id="cd-fields" class="grid2"></div>
+      <div class="fld full"><label>Notes</label><textarea id="cd-notes" placeholder="splits · effort · how it felt"></textarea></div>
+      <button class="solid" onclick="logCond()">Log it</button>
+    </div>
+    <div class="section"><div class="seclabel">Conditioning history</div>`;
+  if(!state.condLog.length){h+=`<div class="empty">No conditioning logged yet.<br>Runs, drags, and benchmark tests show here.</div>`;}
+  else{state.condLog.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).forEach(e=>{
+    const val=fmtSet(e.vals||{},e.metric);
+    h+=`<div class="logitem"><button class="del" onclick="delCondLog(${e.id})">×</button>
+      <div class="meta"><span class="logdate">${esc(e.date)}</span><span class="badge var">${esc(e.kind)}</span></div>
+      ${val?`<div class="logsets"><div class="exl"><b>${esc(val)}</b></div></div>`:""}${e.notes?`<p>${esc(e.notes)}</p>`:""}</div>`;
+  });}
+  h+=`</div>
+    <div class="info" style="padding:0">
+    <h3>Conditioning — slots, not days</h3>
+    <p class="lead">Most conditioning is built into your lifting days. The rest goes in numbered slots you drop on non-lifting days, in any order.</p>
+    <h4>Phase A — now (groin limiting: no running/sprinting)</h4>
+    <table class="ptable">
+      <tr><td><b>Slot</b></td><td><b>Do</b></td></tr>
+      <tr><td>Lower (squat) day</td><td>Wear a vest on the box step-ups</td></tr>
+      <tr><td>Push day</td><td>Max push-ups test (log it)</td></tr>
+      <tr><td>Lower (hinge) day</td><td>Sandbag drag for time (log it)</td></tr>
+      <tr><td>Pull day</td><td>Max pull-ups + sit-ups test (log it)</td></tr>
+      <tr><td>Cond A</td><td>20-30 min incline walk + grease-groove push-ups — any non-lifting day</td></tr>
+      <tr><td>Cond B</td><td>Easy 20-30 min walk — another gap day</td></tr>
+    </table>
+    <h4>Phase B — after groin cleared (add running/sprints)</h4>
+    <table class="ptable">
+      <tr><td><b>Slot</b></td><td><b>Do</b></td><td><b>Spacing</b></td></tr>
+      <tr><td>Run 1</td><td>Quality run (see week table)</td><td>best-rested day; not before a lower day</td></tr>
+      <tr><td>Run 2</td><td>Easy run</td><td>48h+ after Run 1</td></tr>
+      <tr><td>Run 3</td><td>Easy / long run</td><td>48h+ after Run 2</td></tr>
+      <tr><td>Cond C</td><td>Kit shuttle: prone-40yd vest sprint + drag (every other cycle)</td><td>on a lower day</td></tr>
+    </table>
+    <p style="color:var(--ash-dim)">2-day weeks: run only Run 1 and Run 3.</p>
+
+    <h3>Running progression — 18:00 3-mile (6:00/mile)</h3>
+    <p>Starts only when the groin is cleared. Never two hard runs without 48h between. Every run: 8-10 min easy warm-up, 5 min cool-down.</p>
+    <h4>Pace guide</h4>
+    <table class="ptable">
+      <tr><td>Easy</td><td>7:45-8:30/mi</td></tr>
+      <tr><td>Tempo</td><td>6:20-6:45/mi</td></tr>
+      <tr><td>Interval</td><td>~6:00/mi · 800m ≈ 2:55-3:00</td></tr>
+      <tr><td>Rep</td><td>5:30-5:45/mi · 400m ≈ 82-86s</td></tr>
+    </table>
+    <h4>Week by week (3-day)</h4>
+    <table class="ptable runtable">
+      <tr><td><b>Wk</b></td><td><b>Run 1 (quality)</b></td><td><b>Run 2</b></td><td><b>Run 3</b></td></tr>
+      <tr><td>1</td><td>Easy 20 min</td><td>Easy 25</td><td>Easy 30</td></tr>
+      <tr><td>2</td><td>Easy 25</td><td>Easy 30</td><td>Easy 30</td></tr>
+      <tr><td>3</td><td>Easy 25 + 4×20s strides</td><td>Easy 30</td><td>Easy 35</td></tr>
+      <tr><td>4</td><td>Easy 30 + strides</td><td>Easy 30</td><td>Easy 35</td></tr>
+      <tr><td>5</td><td>Tempo 2×6 min (jog 2)</td><td>Easy 30</td><td>Easy/long 40</td></tr>
+      <tr><td>6</td><td>Tempo 2×8 min</td><td>Easy 30</td><td>Easy/long 40</td></tr>
+      <tr><td>7</td><td>Tempo 3×7 min</td><td>Easy 30</td><td>Easy/long 45</td></tr>
+      <tr><td>8</td><td>Tempo 20 min continuous</td><td>Easy 30</td><td>Easy/long 45</td></tr>
+      <tr><td>9</td><td>Tempo 2×12 min</td><td>Easy 30</td><td>Easy/long 45</td></tr>
+      <tr><td>10</td><td>6×400 @ 85s (jog 90s)</td><td>Tempo 15 min</td><td>Easy 30</td></tr>
+      <tr><td>11</td><td>5×800 @ 3:00 (jog 2:00)</td><td>Tempo 15 min</td><td>Easy 30</td></tr>
+      <tr><td>12</td><td>4×1000 @ 3:45 (jog 2:30)</td><td>Tempo 12 min</td><td>Easy 35</td></tr>
+      <tr><td>13</td><td>5×800 @ 2:55 (jog 2:00)</td><td>Tempo 15 min</td><td>Easy 30</td></tr>
+      <tr><td>14</td><td>3×1 mi @ 6:00 (jog 3)</td><td>Easy 30</td><td>Easy/long 40</td></tr>
+      <tr><td>15</td><td>2×1.5 mi @ 6:05 (jog 4)</td><td>Easy 25</td><td>Easy 30</td></tr>
+      <tr><td>16</td><td>4×400 @ goal (sharpen)</td><td>Easy 20</td><td>3-MILE TIME TRIAL</td></tr>
+    </table>
+    <p style="color:var(--ash-dim)">2-day: run only Run 1 and Run 3 each week. After the time trial, re-test and restart at Week 5 with faster target paces.</p>
+    <h4>Rules</h4>
+    <ul>
+      <li>Hard runs never the day before heavy squat or deadlift.</li>
+      <li>Eat at maintenance in Weeks 10-16 — you can't build 6:00 pace in a deficit.</li>
+      <li>Reintroduce speed on hills before flat; stop at any groin twinge; keep Copenhagen work 2×/week.</li>
+      <li>Stalling? Add easy volume, not more intervals.</li>
+    </ul>
+    <h4>Self-test every 6-8 weeks (log each above)</h4>
+    <p>Max pull-ups · max push-ups (60s) · max sit-ups (2 min) · 1.5-mile for time · one heavy single · drag for time. Rest ≤3 min between.</p>
+  </div></div>`;
+  app.innerHTML=h;
+  renderCondFields();
+}
+
+/* ---------- GUIDE ---------- */
 function renderInfo(app){
   app.innerHTML=`<div class="wrap info" style="padding-top:8px">
-    <h3>Gym vs Home</h3>
+    <h3>Start here</h3>
+    <p class="lead">This is a strength + rescue-fitness plan for two people to run together. Pick your <b>Location</b> (Gym or Home) and <b>Split</b> (4-Day or 3-Day) at the top, then follow the tabs below.</p>
+    <h3>The four tabs</h3>
+    <table class="ptable">
+      <tr><td><b>Plan</b></td><td>Today's lifting workout. Tap a Day, do the exercises top to bottom.</td></tr>
+      <tr><td><b>Log</b></td><td>Record a strength session set by set.</td></tr>
+      <tr><td><b>Cond</b></td><td>Running + conditioning schedule, and where you log runs, drags, and tests.</td></tr>
+      <tr><td><b>Guide</b></td><td>This page.</td></tr>
+    </table>
+
+    <h3>Session order (no fixed days)</h3>
+    <p class="lead">Do the sessions in this order across whatever days you train. The spacing rules below are what keep it safe — the calendar day doesn't matter.</p>
+    <table class="ptable">
+      <tr><td><b>#</b></td><td><b>Session</b></td><td><b>Place it…</b></td></tr>
+      <tr><td>1</td><td>Day 1 — Upper Pull (+ pull-up &amp; sit-up test, bike)</td><td>any training day</td></tr>
+      <tr><td>2</td><td>Day 2 — Lower (squat)</td><td>after Day 1</td></tr>
+      <tr><td>3</td><td>Day 3 — Upper Push (+ push-up test)</td><td>after Day 2</td></tr>
+      <tr><td>4</td><td>Day 4 — Lower (hinge)</td><td>keep a non-lower day between it and Day 2</td></tr>
+      <tr><td>+</td><td>Runs &amp; conditioning</td><td>on non-lifting days — see Cond tab</td></tr>
+    </table>
+    <h4>The two spacing rules</h4>
+    <table class="ptable">
+      <tr><td>1</td><td>Never do the two lower days (Day 2 &amp; Day 4) back to back.</td></tr>
+      <tr><td>2</td><td>Never a hard run or sprint the day before a lower day.</td></tr>
+    </table>
+    <p style="color:var(--ash-dim)">3-Day: same idea — Day 1 → Day 2 → Day 3 in order, each on a separate day, no two hard days in a row.</p>
+
+    <h3>How to log a strength day</h3>
+    <table class="ptable">
+      <tr><td>1</td><td>Log tab → set Date, Location, Split, Day</td></tr>
+      <tr><td>2</td><td>Pick your variation toggles (e.g. split squat vs lunge)</td></tr>
+      <tr><td>3</td><td>Tap <b>Start set-by-set</b></td></tr>
+      <tr><td>4</td><td>Type Weight + Reps for each set (free text: "185", "BW", "each")</td></tr>
+      <tr><td>5</td><td>Tap <b>Log session</b></td></tr>
+    </table>
+    <h3>How to log a run or test</h3>
+    <table class="ptable">
+      <tr><td>1</td><td>Cond tab → <b>Log conditioning</b></td></tr>
+      <tr><td>2</td><td>Pick Type (Run, drag, Max push-ups, etc.)</td></tr>
+      <tr><td>3</td><td>Fill the fields it asks for (distance/time, or reps)</td></tr>
+      <tr><td>4</td><td>Tap <b>Log it</b></td></tr>
+    </table>
+
+    <h3>Rules that keep you safe</h3>
     <ul>
-      <li class="lead">Use the Location switch up top. Gym runs the full equipped plan; Home is body + floor only.</li>
-      <li>Home honestly under-trains pulling and grip — there's no bar to hang or row from. The crawl finishers cover the CPAT search event and are the home version's strength.</li>
+      <li class="lead">Finish in ~90 min. One adult always watches your son; you alternate, his set is your rest.</li>
+      <li>Long day? Cut order: kickback → 3rd set of an accessory → a finisher round. Never the anchor or the get-up.</li>
+      <li>Groin: no max sprinting or jumping until cleared; keep everything pain-free.</li>
+      <li>Do the 10-min daily mobility every day: deep squat hold, 90/90 hips, goblet cossack, world's greatest stretch, wall slides, dead hang.</li>
     </ul>
-    <h3>Training with your son — 90-minute rules</h3>
+    <h3>Strength options baked in</h3>
     <ul>
-      <li class="lead">One adult is always with him; you alternate, and his set is your rest.</li>
-      <li>Floor mobility is the part you can often do together.</li>
-      <li>Running long? Cut order: kickback → 3rd set of an accessory → a finisher round. Never cut the anchor or the get-up.</li>
+      <li>Deadlift defaults to trap bar. Rows are dead-stop Pendlay (reset each rep).</li>
+      <li>Dips toggle vs incline press — load the dip heavy. 3-Day Day 3 squat toggles Front / Zercher pin squat.</li>
+      <li>Barbell curls are optional on pull day — first to cut.</li>
+      <li>Home is body + floor only; it under-trains pulling and grip (no bar).</li>
     </ul>
-    <h3>Daily mobility (every day, 10 min)</h3>
-    <ul><li>Deep squat hold w/ pry — 2 min</li><li>90/90 hip switches — 8/side</li><li>Goblet Cossack (or bodyweight) — 8/side, pain-free</li><li>World's greatest stretch — 5/side</li><li>Wall slides / T-spine — 10</li><li>Dead hang — 2 × 30-45s</li></ul>
-    <h3>Groin gating</h3>
-    <ul><li>No max sprinting or cutting; bike (or tempo squats at home) instead.</li><li>Box jumps / squat jumps → controlled work until cleared.</li><li>Cossack and swings stay pain-free.</li></ul>
-    <h3>Progression</h3>
-    <ul><li>Anchors: top of rep range at RIR 2 across all sets → add smallest load (or harder bodyweight variation at home).</li><li>Accessories: add reps first, then load.</li><li>Finishers: hold the time cap; add density only when recovery and the cut allow.</li></ul>
-    <p style="margin-top:22px;color:var(--ash-dim)">Edits and log save to this device only. Use Back up to move data to another phone.</p>
+    <p style="margin-top:22px;color:var(--ash-dim)">Edits and logs save to this device only. Use Back up to move data to another phone. Each person keeps their own copy.</p>
   </div>`;
 }
 
@@ -667,10 +827,10 @@ function backup(){
 }
 function restore(ev){
   const f=ev.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{let data;try{data=JSON.parse(r.result);}catch(e){toast("That file could not be read as a backup.");return;}
-    if(!data.plans||!data.log){toast("That file could not be read as a backup.");return;}
+  r.onload=()=>{let data;try{data=JSON.parse(r.result);}catch(e){toast("Could not read that file as a backup.");return;}
+    if(!data.plans||!data.log){toast("Could not read that file as a backup.");return;}
     if(!valid(data)){toast("That backup is from an older version.");return;}
-    askConfirm("Replace this device's plans and log with the backup file?",()=>{state=data;if(!state.draft)state.draft=null;save();render();toast("Backup restored.");},"Replace");
+    askConfirm("Replace this device's plans and log with the backup file?",()=>{state=data;if(!state.draft)state.draft=null;if(!state.condLog)state.condLog=[];save();render();toast("Backup restored.");},"Replace");
   };
   r.readAsText(f);ev.target.value="";
 }
