@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rescue Build">
+<meta name="theme-color" content="#17191C">
+<link rel="manifest" href='data:application/manifest+json,{"name":"Rescue Build","short_name":"Rescue Build","display":"standalone","background_color":"%2317191C","theme_color":"%2317191C","start_url":"./"}'>
 <title>Rescue Build — Trainer</title>
 <style>
   :root{
@@ -174,7 +180,7 @@
 "use strict";
 const KEY="rescueBuild";
 const SCHEMA=11;
-const LEGACY=["rescueBuild.v10","rescueBuild.v9","rescueBuild.v8","rescueBuild.v7","rescueBuild.v6","rescueBuild.v5"];
+const LEGACY=["rescueBuild.v10","rescueBuild.v9","rescueBuild.v8","rescueBuild.v7","rescueBuild.v6","rescueBuild.v5","rescueBuild.v4","rescueBuild.v3","rescueBuild.v2","rescueBuild.v1"];
 
 /* ---------- builders (metric decides what the log asks for) ---------- */
 function anchor(name,spec,rest,note,metric){return{name,spec,rest,note:note||"",tag:"ANCHOR",anchor:true,metric:metric||"weight_reps"}}
@@ -754,9 +760,48 @@ function renderCond(app){
   renderCondFields();
 }
 
+/* ---------- data recovery (scans every storage slot on this device) ---------- */
+let scanResults=[];
+function scanStorage(){
+  const out=[];
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);let o;
+      try{o=JSON.parse(localStorage.getItem(k));}catch(e){continue;}
+      if(o&&typeof o==="object"){
+        const lc=Array.isArray(o.log)?o.log.length:0, cc=Array.isArray(o.condLog)?o.condLog.length:0;
+        if(lc||cc)out.push({key:k,log:lc,cond:cc,data:o});
+      }
+    }
+  }catch(e){}
+  return out.filter(r=>r.key!==KEY).sort((a,b)=>(b.log+b.cond)-(a.log+a.cond));
+}
+function recover(i){
+  const r=scanResults[i];if(!r)return;const o=r.data;
+  const merge=(a,b)=>{const m={};[...(a||[]),...(b||[])].forEach(e=>{if(e&&e.id!=null)m[e.id]=e;});return Object.values(m);};
+  askConfirm("Recover "+r.log+" workouts and "+r.cond+" conditioning entries into this log?",()=>{
+    state.log=merge(state.log,o.log);state.condLog=merge(state.condLog,o.condLog);
+    if(!state.owner&&o.owner)state.owner=o.owner;
+    save();render();toast("Recovered — now "+state.log.length+" workouts, "+state.condLog.length+" cond.");
+  },"Recover");
+}
+function recoverPanelHTML(){
+  scanResults=scanStorage();
+  if(!scanResults.length){
+    return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:12px">'+
+      '<div class="seclabel" style="margin-bottom:6px">Recover data</div>'+
+      '<p style="font-family:var(--mono);font-size:12px;color:var(--ash);line-height:1.6;margin:0">No other saved logs found in this browser. If your partner\'s phone still shows the history, tap Back up there and Restore the file here. If you have an older backup file anywhere, use Restore in the footer.</p></div>';
+  }
+  let h='<div style="background:var(--panel);border:1px solid var(--ember);border-radius:10px;padding:12px 14px;margin-bottom:12px">'+
+    '<div class="seclabel" style="margin-bottom:6px">Recover data — found earlier entries</div>';
+  scanResults.forEach((r,i)=>{h+=`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0"><span style="font-family:var(--mono);font-size:12px;color:var(--bone)">${esc(String(r.log))} workouts · ${esc(String(r.cond))} conditioning</span><button class="ghost" onclick="recover(${i})">Recover</button></div>`;});
+  h+='</div>';return h;
+}
+
 /* ---------- GUIDE ---------- */
 function renderInfo(app){
   app.innerHTML=`<div class="wrap info" style="padding-top:8px">
+    ${recoverPanelHTML()}
     <h3>Start here</h3>
     <p class="lead">This is a strength + rescue-fitness plan for two people to run together. Pick your <b>Location</b> (Gym or Home) and <b>Split</b> (4-Day or 3-Day) at the top, then follow the tabs below.</p>
     <h3>The four tabs</h3>
