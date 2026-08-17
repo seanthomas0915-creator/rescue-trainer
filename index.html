@@ -395,6 +395,7 @@ function load(){
       if(Array.isArray(data.log))state.log=data.log;
       if(Array.isArray(data.condLog))state.condLog=data.condLog;
       if(data.owner)state.owner=data.owner;
+      if(data.cloud)state.cloud=data.cloud;
       // plans + in-progress draft are kept only when the plan structure matches this build
       if(data.schema===SCHEMA&&valid(data)){
         state.plans=data.plans;
