@@ -127,6 +127,15 @@
   .logsets .exl b{color:var(--bone);font-weight:700}
   .logitem p{margin:8px 0 0;font-family:var(--mono);font-size:12px;color:var(--ash);white-space:pre-wrap;line-height:1.5}
   .logitem .del{position:absolute;right:12px;top:10px}
+  .logentry{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--tallgrass);border-radius:10px;margin-top:10px;overflow:hidden;position:relative}
+  .logsum{list-style:none;cursor:pointer;padding:12px 34px 12px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .logsum::-webkit-details-marker{display:none}
+  .logsum::marker{content:""}
+  .chev{color:var(--ash-dim);font-size:11px;margin-left:2px;transition:transform .15s}
+  .logentry[open] .chev{transform:rotate(180deg)}
+  .logbody{padding:2px 14px 12px 14px}
+  .logbody p{margin:6px 0 0;font-family:var(--mono);font-size:12px;color:var(--ash);white-space:pre-wrap;line-height:1.5}
+  .logentry .del{position:absolute;right:10px;top:9px;z-index:2}
   .empty{color:var(--ash-dim);font-family:var(--mono);font-size:13px;text-align:center;padding:34px 10px;line-height:1.6}
   .info h3{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ember);margin:22px 0 8px}
   .info h4{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone);margin:16px 0 6px}
@@ -182,6 +191,7 @@
 const KEY="rescueBuild";
 const SCHEMA=11;
 const LEGACY=["rescueBuild.v10","rescueBuild.v9","rescueBuild.v8","rescueBuild.v7","rescueBuild.v6","rescueBuild.v5","rescueBuild.v4","rescueBuild.v3","rescueBuild.v2","rescueBuild.v1"];
+const BUILD="2026-08-17 · gtg-sets";
 
 /* ---------- builders (metric decides what the log asks for) ---------- */
 function anchor(name,spec,rest,note,metric){return{name,spec,rest,note:note||"",tag:"ANCHOR",anchor:true,metric:metric||"weight_reps"}}
@@ -680,15 +690,15 @@ function renderHistory(){
   if(!state.log.length){h+=`<div class="empty">No sessions logged yet.<br>Start one above and it appears here.</div></div>`;return h;}
   state.log.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).forEach(e=>{
     const loc=e.locLabel?`<span class="badge loc">${esc(e.locLabel)}</span>`:"";
+    const planb=e.planLabel?`<span class="badge">${esc(e.planLabel)}</span>`:"";
     const dayb=e.dayLabel?`<span class="badge">${esc(e.dayLabel)}</span>`:"";
     const vars=(e.choices&&e.choices.length)?e.choices.map(c=>`<span class="badge var">${esc(c)}</span>`).join(""):"";
     let sets="";
     if(e.exercises&&e.exercises.length){sets='<div class="logsets">';
       e.exercises.forEach(x=>{const m=x.metric||"weight_reps";const parts=x.sets.map(s=>fmtSet(s,m)).filter(Boolean).join(" · ");if(parts)sets+=`<div class="exl"><b>${esc(x.name)}</b> — ${esc(parts)}</div>`;});
       sets+='</div>';}
-    h+=`<div class="logitem"><button class="del" onclick="delLog(${e.id})">×</button>
-      <div class="meta"><span class="logdate">${esc(e.date)}</span>${loc}<span class="badge">${esc(e.planLabel||'')}</span>${dayb}${vars}</div>
-      ${sets}${e.notes?`<p>${esc(e.notes)}</p>`:""}</div>`;
+    const body=(sets||e.notes)?`${sets}${e.notes?`<p>${esc(e.notes)}</p>`:""}`:`<p style="color:var(--ash-dim)">No set details recorded.</p>`;
+    h+=`<details class="logentry"><summary class="logsum"><span class="logdate">${esc(e.date)}</span>${loc}${planb}${dayb}${vars}<span class="chev">▾</span><button class="del" onclick="event.preventDefault();event.stopPropagation();delLog(${e.id})">×</button></summary><div class="logbody">${body}</div></details>`;
   });
   h+=`</div>`;return h;
 }
@@ -700,6 +710,7 @@ const COND_TYPES=[
  {kind:"Time-trial 1.5 mi",metric:"time"},
  {kind:"Time-trial 3 mi",metric:"time"},
  {kind:"Sprints",metric:"time"},
+ {kind:"Grease-the-groove push-ups",metric:"reps",sets:true},
  {kind:"Sandbag / dummy drag",metric:"time"},
  {kind:"Bike / incline walk",metric:"time"},
  {kind:"Max push-ups (60s)",metric:"reps"},
@@ -707,19 +718,36 @@ const COND_TYPES=[
  {kind:"Max sit-ups (2 min)",metric:"reps"},
  {kind:"Other",metric:"time"}
 ];
+let condSets=[{}];
+function condTypeChange(){condSets=[{}];renderCondFields();}
+function condSetInput(i,v){if(!condSets[i])condSets[i]={};condSets[i].r=v;}
+function condAddSet(){condSets.push({});renderCondFields();}
+function condDelSet(i){if(condSets.length>1){condSets.splice(i,1);renderCondFields();}}
 function renderCondFields(){
   const sel=document.getElementById("cd-kind");if(!sel)return;
-  const m=COND_TYPES[+sel.value].metric,box=document.getElementById("cd-fields");
-  box.innerHTML=metricFields(m).map(f=>`<div class="fld"><label>${esc(f.label)}</label><input type="text" id="cd-${f.k}" placeholder="${esc(f.ph)}"></div>`).join("");
+  const t=COND_TYPES[+sel.value],box=document.getElementById("cd-fields");
+  if(t.sets){
+    let h='<div class="choicelabel" style="margin:0 0 6px 0">Sets — reps each (spread through the day)</div>';
+    condSets.forEach((s,i)=>{h+=`<div class="setrow"><span class="setn">Set ${i+1}</span><div class="setf"><input type="text" placeholder="reps" value="${esc(s.r||'')}" oninput="condSetInput(${i},this.value)"></div><button class="setdel" onclick="condDelSet(${i})">×</button></div>`;});
+    h+=`<button class="setadd" onclick="condAddSet()">+ Set</button>`;box.innerHTML=h;return;
+  }
+  box.innerHTML=metricFields(t.metric).map(f=>`<div class="fld"><label>${esc(f.label)}</label><input type="text" id="cd-${f.k}" placeholder="${esc(f.ph)}"></div>`).join("");
 }
 function logCond(){
   const date=document.getElementById("cd-date").value||todayStr();
-  const i=+document.getElementById("cd-kind").value,kind=COND_TYPES[i].kind,m=COND_TYPES[i].metric;
-  const vals={};let any=false;
-  metricFields(m).forEach(f=>{const el=document.getElementById("cd-"+f.k);const v=el?el.value:"";vals[f.k]=v;if((v||"").trim())any=true;});
+  const i=+document.getElementById("cd-kind").value,t=COND_TYPES[i],kind=t.kind,m=t.metric;
   const notes=(document.getElementById("cd-notes").value||"").trim();
-  if(!any&&!notes){toast("Enter at least one value.");return;}
-  state.condLog.push({id:Date.now(),date,kind,metric:m,vals,notes});save();render();toast("Conditioning logged.");
+  if(t.sets){
+    const sets=condSets.map(s=>({r:(s.r||"").trim()})).filter(s=>s.r);
+    if(!sets.length&&!notes){toast("Enter at least one set.");return;}
+    state.condLog.push({id:Date.now(),date,kind,metric:m,sets,notes});condSets=[{}];
+  }else{
+    const vals={};let any=false;
+    metricFields(m).forEach(f=>{const el=document.getElementById("cd-"+f.k);const v=el?el.value:"";vals[f.k]=v;if((v||"").trim())any=true;});
+    if(!any&&!notes){toast("Enter at least one value.");return;}
+    state.condLog.push({id:Date.now(),date,kind,metric:m,vals,notes});
+  }
+  save();render();toast("Conditioning logged.");
 }
 function delCondLog(id){askConfirm("Delete this conditioning entry?",()=>{state.condLog=state.condLog.filter(e=>e.id!==id);save();render()},"Delete")}
 function renderCond(app){
@@ -729,7 +757,7 @@ function renderCond(app){
       <h3>Log conditioning</h3>
       <div class="grid2">
         <div class="fld"><label>Date</label><input type="date" id="cd-date" value="${todayStr()}"></div>
-        <div class="fld"><label>Type</label><select id="cd-kind" onchange="renderCondFields()">${kindOpts}</select></div>
+        <div class="fld"><label>Type</label><select id="cd-kind" onchange="condTypeChange()">${kindOpts}</select></div>
       </div>
       <div id="cd-fields" class="grid2"></div>
       <div class="fld full"><label>Notes</label><textarea id="cd-notes" placeholder="splits · effort · how it felt"></textarea></div>
@@ -738,7 +766,7 @@ function renderCond(app){
     <div class="section"><div class="seclabel">Conditioning history</div>`;
   if(!state.condLog.length){h+=`<div class="empty">No conditioning logged yet.<br>Runs, drags, and benchmark tests show here.</div>`;}
   else{state.condLog.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).forEach(e=>{
-    const val=fmtSet(e.vals||{},e.metric);
+    const val=(e.sets&&e.sets.length)?e.sets.map(s=>s.r).filter(Boolean).join(" · "):fmtSet(e.vals||{},e.metric);
     h+=`<div class="logitem"><button class="del" onclick="delCondLog(${e.id})">×</button>
       <div class="meta"><span class="logdate">${esc(e.date)}</span><span class="badge var">${esc(e.kind)}</span></div>
       ${val?`<div class="logsets"><div class="exl"><b>${esc(val)}</b></div></div>`:""}${e.notes?`<p>${esc(e.notes)}</p>`:""}</div>`;
@@ -754,7 +782,7 @@ function renderCond(app){
       <tr><td>Push day</td><td>Max push-ups test (log it)</td></tr>
       <tr><td>Lower (hinge) day</td><td>Sandbag drag for time (log it)</td></tr>
       <tr><td>Pull day</td><td>Max pull-ups + sit-ups test (log it)</td></tr>
-      <tr><td>Cond A</td><td>20-30 min incline walk + grease-groove push-ups — any non-lifting day</td></tr>
+      <tr><td>Cond A</td><td>Grease-the-groove push-ups: 5-8 easy sets of sub-max reps spread through an off day, plus a 20-30 min incline walk</td></tr>
       <tr><td>Cond B</td><td>Easy 20-30 min walk — another gap day</td></tr>
     </table>
     <h4>Phase B — after groin cleared (add running/sprints)</h4>
@@ -935,7 +963,7 @@ function renderInfo(app){
       <li>Barbell curls are optional on pull day — first to cut.</li>
       <li>Home is body + floor only; it under-trains pulling and grip (no bar).</li>
     </ul>
-    <p style="margin-top:22px;color:var(--ash-dim)">Edits and logs save to this device only. Use Back up to move data to another phone. Each person keeps their own copy.</p>
+    <p style="margin-top:22px;color:var(--ash-dim)">Edits and logs save to this device only. Use Back up to move data to another phone. Each person keeps their own copy.<br>Build ${BUILD}</p>
   </div>`;
 }
 
